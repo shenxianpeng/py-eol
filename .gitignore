@@ -3,5 +3,4 @@
 venv
 
 # Python egg files
-src/python_eol.egg-info/PKG-INFO
-src/python_eol.egg-info/SOURCES.txt
+src/*.egg-info/
