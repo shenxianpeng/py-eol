@@ -1,0 +1,27 @@
+[project]
+name = "python-eol"
+version = "0.1.0"
+description = "Check if a Python version is End-Of-Life (EOL)."
+authors = [
+    { name="Your Name", email="your.email@example.com" }
+]
+license = {text = "MIT"}
+dependencies = ["requests"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+python-eol = "python_eol.cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "requests",
+    "pytest"
+]
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests"
+]
