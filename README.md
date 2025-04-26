@@ -17,8 +17,42 @@ print(is_eol("3.7"))  # True
 print(get_eol_date("3.8"))  # 2024-10-14
 ```
 
-## Update EOL Data
+Check a specific version
 
 ```bash
-python src/python_eol/sync_data.py
+python-eol 3.9
 ```
+
+Check multiple versions
+
+```bash
+python-eol 3.7 3.8 3.11
+```
+
+Check current Python interpreter
+
+```bash
+python-eol --check-self
+```
+
+List all currently supported versions
+
+```bash
+python-eol --list
+```
+
+Output as JSON
+
+```bash
+python-eol 3.8 3.9 --json
+```
+
+Refresh the latest EOL data
+
+```bash
+python-eol --refresh
+```
+
+## License
+
+[MIT](LICENSE)
