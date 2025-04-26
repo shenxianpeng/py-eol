@@ -4,3 +4,8 @@ venv
 
 # Python egg files
 src/*.egg-info/
+
+# python cache
+__pycache__/
+.pytest_cache/
+tests/__pycache__/
