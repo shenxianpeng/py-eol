@@ -17,6 +17,23 @@ print(is_eol("3.7"))  # True
 print(get_eol_date("3.8"))  # 2024-10-14
 ```
 
+```bash
+python-eol --help
+usage: python-eol [-h] [--list] [--json] [--check-self] [--refresh] [versions ...]
+
+Check if a Python version is EOL (End Of Life).
+
+positional arguments:
+  versions      Python versions to check, e.g., 3.11 3.12
+
+options:
+  -h, --help    show this help message and exit
+  --list        List all supported Python versions.
+  --json        Output result in JSON format.
+  --check-self  Check the current Python interpreter version.
+  --refresh     Refresh the EOL data from endoflife.date
+```
+
 Check a specific version
 
 ```bash
