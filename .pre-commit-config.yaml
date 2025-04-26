@@ -1,0 +1,32 @@
+# https://pre-commit.ci/
+ci:
+    autofix_commit_msg: 'ci: auto fixes from pre-commit.com hooks'
+    autoupdate_commit_msg: 'ci: pre-commit autoupdate'
+    autoupdate_schedule: quarterly
+
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+    -   id: check-yaml
+    -   id: check-toml
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
+    -   id: name-tests-test
+    -   id: requirements-txt-fixer
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.11.4
+    hooks:
+    # Run the linter.
+    -   id: ruff
+        args: [ --fix ]
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.15.0
+    hooks:
+    -   id: mypy
+        additional_dependencies: [types-requests]
+-   repo: https://github.com/codespell-project/codespell
+    rev: v2.4.1
+    hooks:
+    -   id: codespell
