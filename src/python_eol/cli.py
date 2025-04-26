@@ -1,7 +1,6 @@
 import sys
 import argparse
 import json
-import platform
 from .checker import is_eol, get_eol_date, supported_versions
 from .sync_data import sync_data
 

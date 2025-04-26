@@ -1,16 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0","setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "python-eol"
-version = "0.1.0"
 description = "Check if a Python version is End-Of-Life (EOL)."
+readme = "README.md"
+keywords = ["python", "eol", "end-of-life"]
 authors = [
-    { name="Your Name", email="your.email@example.com" }
+    { name="Xianpeng Shen", email="xianpeng.shen@gmail.com" }
 ]
+dynamic = ["version"]
 license = {text = "MIT"}
 dependencies = ["requests"]
 
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+[project.urls]
+Homepage = "https://github.com/shenxianpeng/python-eol"
+Repository = "https://github.com/shenxianpeng/python-eol.git"
+# Documentation = "https://python-eol.readthedocs.io/"
+# Changelog = "https://python-eol.readthedocs.io/en/latest/changelog.html"
+Issues = "https://github.com/shenxianpeng/python-eol/issues"
+Funding = "https://github.com/sponsors/shenxianpeng"
 
 [project.scripts]
 python-eol = "python_eol.cli:main"
@@ -25,3 +35,9 @@ dev = [
 testpaths = [
     "tests"
 ]
+
+[tool.setuptools_scm]
+version_scheme= "no-guess-dev"
+# Test PyPI does not support local versions.
+local_scheme = "no-local-version"
+fallback_version = "0.0.0"
