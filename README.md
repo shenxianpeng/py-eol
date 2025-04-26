@@ -1,5 +1,7 @@
 # python-eol
 
+[![main](https://github.com/shenxianpeng/python-eol/actions/workflows/main.yml/badge.svg)](https://github.com/shenxianpeng/python-eol/actions/workflows/main.yml)
+
 Check if a Python version is End-Of-Life (EOL).
 
 ## Installation
@@ -10,12 +12,19 @@ pip install python-eol
 
 ## Usage
 
-```python
-from python_eol import is_eol, get_eol_date
+Use the `python_eol` package as a module
 
-print(is_eol("3.7"))  # True
-print(get_eol_date("3.8"))  # 2024-10-14
+```python
+from python_eol import is_eol, get_eol_date, supported_versions, eol_versions, latest_supported_version
+
+print(is_eol("3.7")) # True
+print(get_eol_date("3.8")) # 2024-10-14
+print(supported_versions()) # ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
+print(eol_versions()) # ['2.7', '3.6', '3.7', '3.8']
+print(latest_supported_version()) # 3.14
 ```
+
+Use the `python-eol` as a command-line tool
 
 ```bash
 python-eol --help
@@ -34,39 +43,25 @@ options:
   --refresh     Refresh the EOL data from endoflife.date
 ```
 
-Check a specific version
+Examples
 
 ```bash
+# Check a specific version
 python-eol 3.9
-```
 
-Check multiple versions
-
-```bash
+# Check multiple versions
 python-eol 3.7 3.8 3.11
-```
 
-Check current Python interpreter
-
-```bash
+# Check current Python interpreter
 python-eol --check-self
-```
 
-List all currently supported versions
-
-```bash
+# List all currently supported versions
 python-eol --list
-```
 
-Output as JSON
-
-```bash
+# Output result in JSON format
 python-eol 3.8 3.9 --json
-```
 
-Refresh the latest EOL data
-
-```bash
+# Refresh the latest EOL data
 python-eol --refresh
 ```
 
