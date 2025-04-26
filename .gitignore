@@ -2,3 +2,5 @@
 .venv
 venv
 
+# Python egg files
+src/*.egg-info/*
