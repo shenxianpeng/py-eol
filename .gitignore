@@ -9,3 +9,8 @@ src/*.egg-info/
 __pycache__/
 .pytest_cache/
 tests/__pycache__/
+
+# build and coverage artifacts
+build/
+dist/
+.coverage
