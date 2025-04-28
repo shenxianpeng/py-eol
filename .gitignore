@@ -3,7 +3,7 @@
 venv
 
 # Python egg files
-src/*.egg-info/
+*.egg-info/
 
 # python cache
 __pycache__/
