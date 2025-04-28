@@ -7,7 +7,7 @@ Check if a Python version is End-Of-Life (EOL).
 ## Installation
 
 ```bash
-pip install python-eol
+pip install git+https://github.com/shenxianpeng/python-eol.git
 ```
 
 ## Usage
