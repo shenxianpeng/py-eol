@@ -7,7 +7,7 @@ Check if a Python version is End-Of-Life (EOL).
 ## Installation
 
 ```bash
-pip install git+https://github.com/shenxianpeng/py-eol.git
+pip install py-eol
 ```
 
 ## Usage
@@ -67,4 +67,4 @@ py-eol --refresh
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://github.com/shenxianpeng/py-eol/blob/main/LICENSE)
