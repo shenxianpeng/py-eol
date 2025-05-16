@@ -1,21 +1,21 @@
-# python-eol
+# py-eol
 
-[![main](https://github.com/shenxianpeng/python-eol/actions/workflows/main.yml/badge.svg)](https://github.com/shenxianpeng/python-eol/actions/workflows/main.yml)
+[![main](https://github.com/shenxianpeng/py-eol/actions/workflows/main.yml/badge.svg)](https://github.com/shenxianpeng/py-eol/actions/workflows/main.yml)
 
 Check if a Python version is End-Of-Life (EOL).
 
 ## Installation
 
 ```bash
-pip install git+https://github.com/shenxianpeng/python-eol.git
+pip install py-eol
 ```
 
 ## Usage
 
-Use the `python_eol` package as a module
+Use the `py_eol` package as a module
 
 ```python
-from python_eol import is_eol, get_eol_date, supported_versions, eol_versions, latest_supported_version
+from py_eol import is_eol, get_eol_date, supported_versions, eol_versions, latest_supported_version
 
 print(is_eol("3.7")) # True
 print(get_eol_date("3.8")) # 2024-10-14
@@ -24,11 +24,11 @@ print(eol_versions()) # ['2.7', '3.6', '3.7', '3.8']
 print(latest_supported_version()) # 3.14
 ```
 
-Use the `python-eol` as a command-line tool
+Use the `py-eol` as a command-line tool
 
 ```bash
-python-eol --help
-usage: python-eol [-h] [--list] [--json] [--check-self] [--refresh] [versions ...]
+py-eol --help
+usage: py-eol [-h] [--list] [--json] [--check-self] [--refresh] [versions ...]
 
 Check if a Python version is EOL (End Of Life).
 
@@ -47,24 +47,24 @@ Examples
 
 ```bash
 # Check a specific version
-python-eol 3.9
+py-eol 3.9
 
 # Check multiple versions
-python-eol 3.7 3.8 3.11
+py-eol 3.7 3.8 3.11
 
 # Check current Python interpreter
-python-eol --check-self
+py-eol --check-self
 
 # List all currently supported versions
-python-eol --list
+py-eol --list
 
 # Output result in JSON format
-python-eol 3.8 3.9 --json
+py-eol 3.8 3.9 --json
 
 # Refresh the latest EOL data
-python-eol --refresh
+py-eol --refresh
 ```
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://github.com/shenxianpeng/py-eol/blob/main/LICENSE)

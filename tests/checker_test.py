@@ -1,6 +1,6 @@
 import datetime
 import pytest
-from python_eol import is_eol, get_eol_date, supported_versions, eol_versions, latest_supported_version
+from py_eol import is_eol, get_eol_date, supported_versions, eol_versions, latest_supported_version
 
 
 def test_is_eol_known_version():

@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0","setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "python-eol"
+name = "py-eol"
 description = "Check if a Python version is End-Of-Life (EOL)."
 readme = "README.md"
 keywords = ["python", "eol", "end-of-life"]
@@ -11,19 +11,19 @@ authors = [
     { name="Xianpeng Shen", email="xianpeng.shen@gmail.com" }
 ]
 dynamic = ["version"]
-license = {text = "MIT"}
+license = "MIT"
 dependencies = ["requests"]
 
 [project.urls]
-Homepage = "https://github.com/shenxianpeng/python-eol"
-Repository = "https://github.com/shenxianpeng/python-eol.git"
-# Documentation = "https://python-eol.readthedocs.io/"
-# Changelog = "https://python-eol.readthedocs.io/en/latest/changelog.html"
-Issues = "https://github.com/shenxianpeng/python-eol/issues"
+Homepage = "https://github.com/shenxianpeng/py-eol"
+Repository = "https://github.com/shenxianpeng/py-eol.git"
+# Documentation = "https://py-eol.readthedocs.io/"
+# Changelog = "https://py-eol.readthedocs.io/en/latest/changelog.html"
+Issues = "https://github.com/shenxianpeng/py-eol/issues"
 Funding = "https://github.com/sponsors/shenxianpeng"
 
 [project.scripts]
-python-eol = "python_eol.cli:main"
+py-eol = "py_eol.cli:main"
 
 [project.optional-dependencies]
 dev = [
