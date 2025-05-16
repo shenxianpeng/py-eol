@@ -1,4 +1,4 @@
-name: main
+name: CI
 on:
   push:
     branches:
@@ -42,7 +42,3 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish to PyPI
-        if: ${{ github.ref == 'refs/heads/main' && matrix.python-version == '3.13' && github.event_name == 'release' }}
-        run: nox -s publish -- --username __token__ --password ${{ secrets.PYPI_TOKEN }}
