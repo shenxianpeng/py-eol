@@ -26,6 +26,7 @@ jobs:
         run: nox -s lint test coverage build
 
       - name: Update eol_data.py
+        if: ${{ matrix.python-version == '3.13' }}
         run: |
           if git diff --quiet HEAD -- eol_data.py; then
             echo "No changes in eol_data.py. Skipping commit and push."
