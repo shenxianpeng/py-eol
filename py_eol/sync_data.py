@@ -6,7 +6,7 @@ EOL_API_URL = "https://endoflife.date/api/python.json"
 OUTPUT_FILE = Path(__file__).parent / "eol_data.py"
 
 
-def fetch_python_eol_data():
+def fetch_py_eol_data():
     """Fetch Python EOL data from endoflife.date API."""
     response = requests.get(EOL_API_URL)
     response.raise_for_status()
@@ -46,6 +46,6 @@ def save_eol_data(content: str):
 
 def sync_data():
     """Sync the data to generate eol_data.py."""
-    data = fetch_python_eol_data()
+    data = fetch_py_eol_data()
     content = generate_eol_data_content(data)
     save_eol_data(content)
