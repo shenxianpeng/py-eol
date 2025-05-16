@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   deploy:
@@ -28,5 +29,5 @@ jobs:
     - name: Build
       run: nox -s build
     - name: Publish to PyPI
-      if: github.event_name == 'workflow_dispatch' && github.repository == 'shenxianpeng/py-eol'
+      if: github.repository == 'shenxianpeng/py-eol'
       run: nox -s publish -- --username __token__ --password ${{ secrets.PYPI_TOKEN }}
