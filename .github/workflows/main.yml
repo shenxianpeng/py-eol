@@ -25,21 +25,19 @@ jobs:
       - name: Run Nox
         run: nox -s lint test coverage build
 
-      - name: Update eol_data.py
+      - name: Commit and push changes of eol_data.py
         if: ${{ matrix.python-version == '3.13' }}
         run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
           if git diff --quiet HEAD -- eol_data.py; then
             echo "No changes in eol_data.py. Skipping commit and push."
           else
             echo "Changes detected in eol_data.py:"
             git diff eol_data.py
-
-            # Optionally stage the file (if not already staged)
             git add eol_data.py
-
-            # Commit the changes
-            git commit -m "Update eol_data.py"
-
-            # Push to the current upstream branch
+            git commit -m "chore: update eol_data.py"
             git push
-          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
