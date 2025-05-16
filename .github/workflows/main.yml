@@ -9,13 +9,13 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
@@ -24,3 +24,21 @@ jobs:
           python -m pip install nox
       - name: Run Nox
         run: nox -s lint test coverage build
+
+      - name: Commit and push changes of eol_data.py
+        if: ${{ matrix.python-version == '3.13' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet HEAD -- eol_data.py; then
+            echo "No changes in eol_data.py. Skipping commit and push."
+          else
+            echo "Changes detected in eol_data.py:"
+            git diff eol_data.py
+            git add eol_data.py
+            git commit -m "chore: update eol_data.py"
+            git push
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
