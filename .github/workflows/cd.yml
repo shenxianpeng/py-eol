@@ -1,0 +1,32 @@
+name: CD
+
+on:
+  release:
+    branches: [main]
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      # use fetch --all for setuptools_scm to work
+      with:
+        fetch-depth: 0
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+    - name: Install dependencies
+      run: python -m pip install nox
+    - name: Build
+      run: nox -s build
+    - name: Publish to PyPI
+      if: github.event_name == 'workflow_dispatch' && github.repository == 'shenxianpeng/py-eol'
+      run: nox -s publish -- --username __token__ --password ${{ secrets.PYPI_TOKEN }}

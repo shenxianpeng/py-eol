@@ -1,6 +1,6 @@
 # py-eol
 
-[![main](https://github.com/shenxianpeng/py-eol/actions/workflows/main.yml/badge.svg)](https://github.com/shenxianpeng/py-eol/actions/workflows/main.yml)
+[![main](https://github.com/shenxianpeng/py-eol/actions/workflows/ci.yml/badge.svg)](https://github.com/shenxianpeng/py-eol/actions/workflows/ci.yml)
 ![PyPI - Version](https://img.shields.io/pypi/v/py-eol)
 
 
