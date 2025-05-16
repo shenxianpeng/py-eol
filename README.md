@@ -1,6 +1,8 @@
 # py-eol
 
 [![main](https://github.com/shenxianpeng/py-eol/actions/workflows/main.yml/badge.svg)](https://github.com/shenxianpeng/py-eol/actions/workflows/main.yml)
+![PyPI - Version](https://img.shields.io/pypi/v/py-eol)
+
 
 Check if a Python version is End-Of-Life (EOL).
 
