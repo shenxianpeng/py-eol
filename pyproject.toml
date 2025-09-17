@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "py-eol"
-description = "Check if a Python version is End-Of-Life (EOL)."
+description = "Check if a Python version is End-Of-Life (EOL)"
 readme = "README.md"
 keywords = ["python", "eol", "end-of-life"]
 authors = [

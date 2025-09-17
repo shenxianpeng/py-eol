@@ -1,8 +1,8 @@
 import sys
 import argparse
 import json
-from .checker import is_eol, get_eol_date, supported_versions
-from .sync_data import sync_data
+from py_eol.checker import is_eol, get_eol_date, supported_versions
+from py_eol.sync_data import sync_data
 from importlib.metadata import version as __version__
 
 

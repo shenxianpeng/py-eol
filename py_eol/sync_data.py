@@ -3,7 +3,7 @@ import datetime
 from pathlib import Path
 
 EOL_API_URL = "https://endoflife.date/api/python.json"
-OUTPUT_FILE = Path(__file__).parent / "eol_data.py"
+OUTPUT_FILE = Path(__file__).parent / "_eol_data.py"
 
 
 def fetch_py_eol_data():
@@ -14,7 +14,7 @@ def fetch_py_eol_data():
 
 
 def generate_eol_data_content(data):
-    """Generate the content for eol_data.py."""
+    """Generate the content for _eol_data.py."""
     lines = [
         "import datetime",
         "",
@@ -39,13 +39,13 @@ def generate_eol_data_content(data):
 
 
 def save_eol_data(content: str):
-    """Save generated content to eol_data.py."""
+    """Save generated content to _eol_data.py."""
     OUTPUT_FILE.write_text(content, encoding="utf-8")
     print(f"✅ Updated {OUTPUT_FILE}")
 
 
 def sync_data() -> bool:
-    """Sync the data to generate eol_data.py."""
+    """Sync the data to generate _eol_data.py."""
     try:
         data = fetch_py_eol_data()
         content = generate_eol_data_content(data)

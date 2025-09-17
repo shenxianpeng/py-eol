@@ -22,7 +22,8 @@ def coverage(session):
     session.install("pytest", "pytest-cov")
     session.run("coverage", "run", "-m", "pytest")
     session.run("coverage", "report")
-    session.run("coverage", "xml")
+    session.run("coverage", "html")
+    session.run("coverage", "xml")  # Generate coverage.xml for codecov
 
 @nox.session
 def build(session):
