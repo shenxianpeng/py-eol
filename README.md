@@ -2,7 +2,7 @@
 
 [![main](https://github.com/shenxianpeng/py-eol/actions/workflows/ci.yml/badge.svg)](https://github.com/shenxianpeng/py-eol/actions/workflows/ci.yml)
 ![PyPI - Version](https://img.shields.io/pypi/v/py-eol)
-
+[![codecov](https://codecov.io/gh/shenxianpeng/py-eol/graph/badge.svg?token=7B23E012SN)](https://codecov.io/gh/shenxianpeng/py-eol)
 
 Check if a Python version is **End-Of-Life (EOL)**.
 

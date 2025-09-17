@@ -19,6 +19,11 @@ def test_get_eol_date():
     assert isinstance(date, datetime.date)
 
 
+def test_get_eol_date_unknown_version():
+    with pytest.raises(ValueError, match="Unknown Python version"):
+        get_eol_date("4.0")
+
+
 def test_supported_versions_not_empty():
     versions = supported_versions()
     assert isinstance(versions, list)
@@ -34,3 +39,16 @@ def test_eol_versions_not_empty():
 def test_latest_supported_version():
     version = latest_supported_version()
     assert isinstance(version, str)
+
+
+def test_latest_supported_version_no_supported(monkeypatch):
+    # Monkeypatch EOL_DATES so all versions are EOL
+    import py_eol.checker as checker
+    old_eol_dates = checker.EOL_DATES.copy()
+    try:
+        all_past = {k: datetime.date(2000, 1, 1) for k in checker.EOL_DATES}
+        monkeypatch.setattr(checker, "EOL_DATES", all_past)
+        with pytest.raises(RuntimeError, match="No supported Python versions found."):
+            checker.latest_supported_version()
+    finally:
+        monkeypatch.setattr(checker, "EOL_DATES", old_eol_dates)
