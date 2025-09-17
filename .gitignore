@@ -14,3 +14,5 @@ tests/__pycache__/
 build/
 dist/
 .coverage
+coverage.xml
+htmlcov/
