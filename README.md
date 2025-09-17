@@ -1,7 +1,7 @@
 # py-eol
 
 [![main](https://github.com/shenxianpeng/py-eol/actions/workflows/ci.yml/badge.svg)](https://github.com/shenxianpeng/py-eol/actions/workflows/ci.yml)
-![PyPI - Version](https://img.shields.io/pypi/v/py-eol)
+[![PyPI - Version](https://img.shields.io/pypi/v/py-eol)](https://pypi.org/project/py-eol/)
 [![codecov](https://codecov.io/gh/shenxianpeng/py-eol/graph/badge.svg?token=7B23E012SN)](https://codecov.io/gh/shenxianpeng/py-eol)
 
 Check if a Python version is **End-Of-Life (EOL)**.
@@ -37,7 +37,7 @@ print(latest_supported_version()) # 3.14
 
 ```bash
 py-eol --help
-usage: py-eol [-h] [--list] [--json] [--check-self] [--refresh] [versions ...]
+usage: py-eol [-h] [--list] [--json] [--check-self] [--refresh] [--version] [versions ...]
 
 Check if a Python version is EOL (End Of Life).
 
@@ -46,10 +46,11 @@ positional arguments:
 
 options:
   -h, --help    show this help message and exit
-  --list        List all supported Python versions.
-  --json        Output result in JSON format.
-  --check-self  Check the current Python interpreter version.
+  --list        List all supported Python versions
+  --json        Output result in JSON format
+  --check-self  Check the current Python interpreter version
   --refresh     Refresh the EOL data from endoflife.date
+  --version     Show the version of the tool
 ```
 
 Examples
