@@ -4,7 +4,14 @@
 ![PyPI - Version](https://img.shields.io/pypi/v/py-eol)
 
 
-Check if a Python version is End-Of-Life (EOL).
+Check if a Python version is **End-Of-Life (EOL)**.
+
+## Why py-eol?
+
+* Programmatically check if a Python version is supported or EOL
+* Works both as a Python module and a CLI tool
+* Useful for local checks, automation scripts, and CI/CD pipelines
+* Helps teams avoid using unsupported Python versions
 
 ## Installation
 
@@ -14,7 +21,7 @@ pip install py-eol
 
 ## Usage
 
-Use the `py_eol` package as a module
+### As a Python module
 
 ```python
 from py_eol import is_eol, get_eol_date, supported_versions, eol_versions, latest_supported_version
@@ -26,7 +33,7 @@ print(eol_versions()) # ['2.7', '3.6', '3.7', '3.8']
 print(latest_supported_version()) # 3.14
 ```
 
-Use the `py-eol` as a command-line tool
+### As a CLI tool
 
 ```bash
 py-eol --help
@@ -69,4 +76,4 @@ py-eol --refresh
 
 ## License
 
-[MIT](https://github.com/shenxianpeng/py-eol/blob/main/LICENSE)
+[MIT License](https://github.com/shenxianpeng/py-eol/blob/main/LICENSE)

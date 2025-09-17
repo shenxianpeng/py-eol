@@ -17,8 +17,6 @@ dependencies = ["requests"]
 [project.urls]
 Homepage = "https://github.com/shenxianpeng/py-eol"
 Repository = "https://github.com/shenxianpeng/py-eol.git"
-# Documentation = "https://py-eol.readthedocs.io/"
-# Changelog = "https://py-eol.readthedocs.io/en/latest/changelog.html"
 Issues = "https://github.com/shenxianpeng/py-eol/issues"
 Funding = "https://github.com/sponsors/shenxianpeng"
 
