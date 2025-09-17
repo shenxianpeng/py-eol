@@ -3,6 +3,7 @@ import argparse
 import json
 from .checker import is_eol, get_eol_date, supported_versions
 from .sync_data import sync_data
+from importlib.metadata import version as __version__
 
 
 def check_versions(versions, output_json=False):
@@ -63,7 +64,7 @@ def refresh_data():
     print("🔄 Refreshing Python EOL data...")
     success = sync_data()
     if success:
-        print("✅ Successfully refreshed EOL data.")
+        print("🎉 Successfully refreshed EOL data.")
         sys.exit(0)
     else:
         print("❌ Failed to refresh EOL data.")
@@ -82,26 +83,34 @@ def main():
     parser.add_argument(
         "--list",
         action="store_true",
-        help="List all supported Python versions."
+        help="List all supported Python versions"
     )
     parser.add_argument(
         "--json",
         action="store_true",
-        help="Output result in JSON format."
+        help="Output result in JSON format"
     )
     parser.add_argument(
         "--check-self",
         action="store_true",
-        help="Check the current Python interpreter version."
+        help="Check the current Python interpreter version"
     )
     parser.add_argument(
         "--refresh",
         action="store_true",
         help="Refresh the EOL data from endoflife.date"
     )
+    parser.add_argument(
+        "--version",
+        action="store_true",
+        help="Show the version of the tool"
+    )
 
     args = parser.parse_args()
 
+    if args.version:
+        print(f"py-eol {__version__('py-eol')}")
+        sys.exit(0)
     if args.refresh:
         refresh_data()
     elif args.check_self:

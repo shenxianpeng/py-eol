@@ -44,8 +44,12 @@ def save_eol_data(content: str):
     print(f"✅ Updated {OUTPUT_FILE}")
 
 
-def sync_data():
+def sync_data() -> bool:
     """Sync the data to generate eol_data.py."""
-    data = fetch_py_eol_data()
-    content = generate_eol_data_content(data)
-    save_eol_data(content)
+    try:
+        data = fetch_py_eol_data()
+        content = generate_eol_data_content(data)
+        save_eol_data(content)
+        return True
+    except Exception:
+        return False
