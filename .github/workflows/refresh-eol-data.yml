@@ -27,6 +27,6 @@ jobs:
           commit-message: "Refresh EOL data"
           branch: refresh-eol-data-${{ github.run_id }}
           title: "chore: refresh EOL data"
-          body: "This PR refreshes the EOL data using the [latest information](https://endoflife.date/api/python.json)."
+          body: "This PR refreshes the EOL data using the latest available information."
           labels: "auto-generated"
           committer: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
