@@ -13,24 +13,30 @@ def check_versions(versions, output_json=False):
         try:
             eol_date = get_eol_date(version)
             status = "EOL" if is_eol(version) else "Supported"
-            results.append({
-                "version": version,
-                "status": status,
-                "eol_date": eol_date.isoformat(),
-            })
+            results.append(
+                {
+                    "version": version,
+                    "status": status,
+                    "eol_date": eol_date.isoformat(),
+                }
+            )
         except ValueError as e:
-            results.append({
-                "version": version,
-                "status": "Unknown",
-                "error": str(e),
-            })
+            results.append(
+                {
+                    "version": version,
+                    "status": "Unknown",
+                    "error": str(e),
+                }
+            )
 
     if output_json:
         print(json.dumps(results, indent=2))
     else:
         for r in results:
             if r["status"] == "Supported":
-                print(f"✅ Python {r['version']} is still supported until {r['eol_date']}")
+                print(
+                    f"✅ Python {r['version']} is still supported until {r['eol_date']}"
+                )
             elif r["status"] == "EOL":
                 print(f"⚠️  Python {r['version']} is already EOL since {r['eol_date']}")
             else:
@@ -76,34 +82,26 @@ def main():
         description="Check if a Python version is EOL (End Of Life)."
     )
     parser.add_argument(
-        "versions",
-        nargs="*",
-        help="Python versions to check, e.g., 3.11 3.12"
+        "versions", nargs="*", help="Python versions to check, e.g., 3.11 3.12"
     )
     parser.add_argument(
-        "--list",
-        action="store_true",
-        help="List all supported Python versions"
+        "--list", action="store_true", help="List all supported Python versions"
     )
     parser.add_argument(
-        "--json",
-        action="store_true",
-        help="Output result in JSON format"
+        "--json", action="store_true", help="Output result in JSON format"
     )
     parser.add_argument(
         "--check-self",
         action="store_true",
-        help="Check the current Python interpreter version"
+        help="Check the current Python interpreter version",
     )
     parser.add_argument(
         "--refresh",
         action="store_true",
-        help="Refresh the EOL data from endoflife.date"
+        help="Refresh the EOL data from endoflife.date",
     )
     parser.add_argument(
-        "--version",
-        action="store_true",
-        help="Show the version of the tool"
+        "--version", action="store_true", help="Show the version of the tool"
     )
 
     args = parser.parse_args()

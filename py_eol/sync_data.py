@@ -15,11 +15,7 @@ def fetch_py_eol_data():
 
 def generate_eol_data_content(data):
     """Generate the content for _eol_data.py."""
-    lines = [
-        "import datetime",
-        "",
-        "EOL_DATES = {"
-    ]
+    lines = ["import datetime", "", "EOL_DATES = {"]
     for entry in data:
         version = entry["cycle"]
         eol_date_str = entry["eol"]
