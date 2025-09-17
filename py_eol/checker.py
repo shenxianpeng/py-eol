@@ -1,5 +1,5 @@
 import datetime
-from .eol_data import EOL_DATES
+from py_eol._eol_data import EOL_DATES
 
 
 def is_eol(version: str) -> bool:

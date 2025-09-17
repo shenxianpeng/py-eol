@@ -1,6 +1,12 @@
 import datetime
 import pytest
-from py_eol import is_eol, get_eol_date, supported_versions, eol_versions, latest_supported_version
+from py_eol import (
+    is_eol,
+    get_eol_date,
+    supported_versions,
+    eol_versions,
+    latest_supported_version,
+)
 
 
 def test_is_eol_known_version():
@@ -44,6 +50,7 @@ def test_latest_supported_version():
 def test_latest_supported_version_no_supported(monkeypatch):
     # Monkeypatch EOL_DATES so all versions are EOL
     import py_eol.checker as checker
+
     old_eol_dates = checker.EOL_DATES.copy()
     try:
         all_past = {k: datetime.date(2000, 1, 1) for k in checker.EOL_DATES}
