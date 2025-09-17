@@ -25,7 +25,7 @@ jobs:
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
         with:
           commit-message: "Refresh EOL data"
-          branch: refresh-eol-data
+          branch: refresh-eol-data-${{ github.run_id }}
           title: "chore: refresh EOL data"
           body: "This PR refreshes the EOL data using the [latest information](https://endoflife.date/api/python.json)."
           labels: "auto-generated"
