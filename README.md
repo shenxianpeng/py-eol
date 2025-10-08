@@ -28,9 +28,9 @@ from py_eol import is_eol, get_eol_date, supported_versions, eol_versions, lates
 
 print(is_eol("3.7")) # True
 print(get_eol_date("3.8")) # 2024-10-07
-print(supported_versions()) # ['3.13', '3.12', '3.11', '3.10', '3.9']
+print(supported_versions()) # ['3.14', '3.13', '3.12', '3.11', '3.10', '3.9']
 print(eol_versions()) # ['3.8', '3.7', '3.6', '3.5', '3.4', '3.3', '3.2', '2.7', '3.1', '3.0', '2.6']
-print(latest_supported_version()) # 3.13
+print(latest_supported_version()) # 3.14
 ```
 
 ### As a CLI tool
