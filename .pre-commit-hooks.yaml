@@ -4,4 +4,3 @@
   language: python
   files: '(pyproject\.toml|setup\.py|\.github/workflows/.*\.ya?ml)'
   types: [toml, python, yaml]
-  additional_dependencies: ["pyyaml", "packaging"]
