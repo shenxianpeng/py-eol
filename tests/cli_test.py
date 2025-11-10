@@ -84,6 +84,7 @@ def test_main_default(monkeypatch, capsys):
                 check_self = False
                 refresh = False
                 version = False
+                file = []
 
             return Args()
 
@@ -109,6 +110,10 @@ def test_check_versions_supported(monkeypatch, capsys):
         cli_mod, "get_eol_date", lambda v: sys.modules["datetime"].date(2099, 1, 1)
     )
     monkeypatch.setattr(cli_mod, "is_eol", lambda v: False)
+    monkeypatch.setattr(
+        "py_eol.checker.get_eol_date",
+        lambda v: sys.modules["datetime"].date(2099, 1, 1),
+    )
     with pytest.raises(SystemExit) as e:
         cli_mod.check_versions(["3.99"])
     out = capsys.readouterr().out
@@ -121,6 +126,10 @@ def test_check_versions_eol(monkeypatch, capsys):
         cli_mod, "get_eol_date", lambda v: sys.modules["datetime"].date(2000, 1, 1)
     )
     monkeypatch.setattr(cli_mod, "is_eol", lambda v: True)
+    monkeypatch.setattr(
+        "py_eol.checker.get_eol_date",
+        lambda v: sys.modules["datetime"].date(2000, 1, 1),
+    )
     with pytest.raises(SystemExit) as e:
         cli_mod.check_versions(["2.7"])
     out = capsys.readouterr().out

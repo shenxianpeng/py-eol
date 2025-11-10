@@ -1,7 +1,17 @@
+from pathlib import Path
 import sys
 import argparse
 import json
-from py_eol.checker import is_eol, get_eol_date, supported_versions
+from py_eol.checker import (
+    is_eol,
+    get_eol_date,
+    supported_versions,
+    _check_pyproject_toml,
+    _check_setup_py,
+    _check_github_actions,
+    _print_eol_warning,
+    _print_supported_warning,
+)
 from py_eol.sync_data import sync_data
 from importlib.metadata import version as __version__
 
@@ -34,11 +44,9 @@ def check_versions(versions, output_json=False):
     else:
         for r in results:
             if r["status"] == "Supported":
-                print(
-                    f"✅ Python {r['version']} is still supported until {r['eol_date']}"
-                )
+                _print_supported_warning(r["version"])
             elif r["status"] == "EOL":
-                print(f"⚠️  Python {r['version']} is already EOL since {r['eol_date']}")
+                _print_eol_warning(r["version"])
             else:
                 print(f"❌ Error checking {r['version']}: {r['error']}")
 
@@ -85,6 +93,11 @@ def main():
         "versions", nargs="*", help="Python versions to check, e.g., 3.11 3.12"
     )
     parser.add_argument(
+        "--file",
+        nargs="*",
+        help="Files to check for Python versions, e.g., pyproject.toml, setup.py, GitHub Actions workflow files",
+    )
+    parser.add_argument(
         "--list", action="store_true", help="List all supported Python versions"
     )
     parser.add_argument(
@@ -117,6 +130,15 @@ def main():
         list_supported_versions(output_json=args.json)
     elif args.versions:
         check_versions(args.versions, output_json=args.json)
+    elif args.file:
+        for file_path in args.file:
+            file = Path(file_path)
+            if file.name == "pyproject.toml":
+                _check_pyproject_toml(file)
+            elif file.name == "setup.py":
+                _check_setup_py(file)
+            elif file.suffix in (".yml", ".yaml") and ".github/workflows" in str(file):
+                _check_github_actions(file)
     else:
         parser.print_help()
         sys.exit(0)
