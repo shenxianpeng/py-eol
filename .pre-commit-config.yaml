@@ -31,11 +31,3 @@ repos:
     rev: v2.4.1
     hooks:
     -   id: codespell
--   repo: local
-    hooks:
-    -   id: check-python-eol
-        name: Check Python version EOL
-        entry: py-eol --file
-        language: python
-        files: '(pyproject\.toml|setup\.py|\.github/workflows/.*\.ya?ml)'
-        additional_dependencies: [".", "pyyaml", "packaging"]
