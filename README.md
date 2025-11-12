@@ -87,6 +87,9 @@ py-eol --refresh
 
 ### As a pre-commit hook
 
+> [!NOTE]
+> This hook checks Python versions specified in pyproject.toml, setup.py, and GitHub Actions workflow files.
+
 To use `py-eol` as a pre-commit hook, you can add the following configuration to your `.pre-commit-config.yaml` file:
 
 ```yaml
@@ -96,9 +99,6 @@ repos:
     hooks:
       - id: py-eol
 ```
-
-> [!NOTE]
-> It only checks `pyproject.toml`, `setup.py`, and GitHub Actions workflow files for Python versions.
 
 ## License
 
