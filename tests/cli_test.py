@@ -2,6 +2,7 @@ import sys
 import pytest
 import py_eol.cli as cli_mod
 from unittest.mock import MagicMock
+from pathlib import Path
 
 
 def test_main_version(monkeypatch, capsys):
@@ -186,3 +187,40 @@ def test_refresh_data_fail(monkeypatch, capsys):
     out = capsys.readouterr().out
     assert "Failed to refresh" in out
     assert e.value.code == 1
+
+
+def test_main_files_found(monkeypatch, capsys):
+    monkeypatch.setattr(sys, "argv", ["py-eol", "files", "pyproject.toml"])
+    monkeypatch.setattr(cli_mod, "_check_pyproject_toml", lambda f: True)
+    with pytest.raises(SystemExit) as e:
+        cli_mod.main()
+    assert e.value.code == 1
+
+
+def test_main_files_not_found(monkeypatch, capsys):
+    monkeypatch.setattr(sys, "argv", ["py-eol", "files", "pyproject.toml"])
+    monkeypatch.setattr(cli_mod, "_check_pyproject_toml", lambda f: False)
+    # Since we're not raising an exception, we need to mock sys.exit
+    mock_exit = MagicMock()
+    monkeypatch.setattr(sys, "exit", mock_exit)
+    cli_mod.main()
+    mock_exit.assert_not_called()
+
+
+def test_main_files_multiple(monkeypatch, capsys):
+    # Create dummy files
+    Path("pyproject.toml").touch()
+    Path("setup.py").touch()
+
+    monkeypatch.setattr(
+        sys, "argv", ["py-eol", "files", "pyproject.toml", "setup.py"]
+    )
+    monkeypatch.setattr(cli_mod, "_check_pyproject_toml", lambda f: False)
+    monkeypatch.setattr(cli_mod, "_check_setup_py", lambda f: True)
+    with pytest.raises(SystemExit) as e:
+        cli_mod.main()
+    assert e.value.code == 1
+
+    # Clean up dummy files
+    Path("pyproject.toml").unlink()
+    Path("setup.py").unlink()

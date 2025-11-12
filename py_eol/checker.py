@@ -97,6 +97,7 @@ def _check_setup_py(file_path: str) -> bool:
     min_version = min(specifier).version
     if is_eol(min_version):
         _print_eol_warning(min_version)
+        return True
     return False
 
 

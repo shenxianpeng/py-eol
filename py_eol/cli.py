@@ -142,14 +142,20 @@ def main():
     if args.command == "versions":
         check_versions(args.versions, output_json=args.json)
     elif args.command == "files":
+        eol_found = False
         for file_path in args.files:
             file = Path(file_path)
             if file.name == "pyproject.toml":
-                _check_pyproject_toml(file)
+                if _check_pyproject_toml(file):
+                    eol_found = True
             elif file.name == "setup.py":
-                _check_setup_py(file)
+                if _check_setup_py(file):
+                    eol_found = True
             elif file.suffix in (".yml", ".yaml") and ".github/workflows" in str(file):
-                _check_github_actions(file)
+                if _check_github_actions(file):
+                    eol_found = True
+        if eol_found:
+            sys.exit(1)
     elif args.command == "list":
         list_supported_versions(output_json=args.json)
     elif args.command == "check-self":
