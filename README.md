@@ -6,6 +6,16 @@
 
 Check if a Python version is **End-Of-Life (EOL)**.
 
+## Table of Contents
+
+- [Why py-eol?](#why-py-eol)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [As a Python module](#as-a-python-module)
+  - [As a CLI tool](#as-a-cli-tool)
+  - [As a pre-commit hook](#as-a-pre-commit-hook)
+- [License](#license)
+
 ## Why py-eol?
 
 * Programmatically check if a Python version is supported or EOL
@@ -75,7 +85,7 @@ py-eol 3.8 3.9 --json
 py-eol --refresh
 ```
 
-## As a pre-commit hook
+### As a pre-commit hook
 
 To use `py-eol` as a pre-commit hook, you can add the following configuration to your `.pre-commit-config.yaml` file:
 
