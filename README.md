@@ -75,6 +75,20 @@ py-eol 3.8 3.9 --json
 py-eol --refresh
 ```
 
+## As a pre-commit hook
+
+To use `py-eol` as a pre-commit hook, you can add the following configuration to your `.pre-commit-config.yaml` file:
+
+```yaml
+repos:
+  - repo: https://github.com/shenxianpeng/py-eol
+    rev:  # Use the ref you want to point at
+    hooks:
+      - id: py-eol
+```
+
+> Note: It only checks `pyproject.toml`, `setup.py`, and GitHub Actions workflow files for Python versions.
+
 ## License
 
 [MIT License](https://github.com/shenxianpeng/py-eol/blob/main/LICENSE)

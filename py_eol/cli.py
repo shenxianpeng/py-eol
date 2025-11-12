@@ -90,48 +90,59 @@ def main():
         description="Check if a Python version is EOL (End Of Life)."
     )
     parser.add_argument(
-        "versions", nargs="*", help="Python versions to check, e.g., 3.11 3.12"
+        "--version",
+        action="version",
+        version=f"py-eol {__version__('py-eol')}",
+        help="Show the version of the tool",
     )
-    parser.add_argument(
-        "--file",
-        nargs="*",
-        help="Files to check for Python versions, e.g., pyproject.toml, setup.py, GitHub Actions workflow files",
+    subparsers = parser.add_subparsers(dest="command", help="sub-command help")
+
+    # versions command
+    parser_versions = subparsers.add_parser(
+        "versions", help="Check specific Python versions"
     )
-    parser.add_argument(
-        "--list", action="store_true", help="List all supported Python versions"
+    parser_versions.add_argument(
+        "versions", nargs="+", help="Python versions to check, e.g., 3.11 3.12"
     )
-    parser.add_argument(
+    parser_versions.add_argument(
         "--json", action="store_true", help="Output result in JSON format"
     )
-    parser.add_argument(
-        "--check-self",
-        action="store_true",
-        help="Check the current Python interpreter version",
+
+    # files command
+    parser_files = subparsers.add_parser(
+        "files", help="Check files for Python versions"
     )
-    parser.add_argument(
-        "--refresh",
-        action="store_true",
-        help="Refresh the EOL data from endoflife.date",
+    parser_files.add_argument(
+        "files",
+        nargs="+",
+        help="Files to check for Python versions, e.g., pyproject.toml, setup.py, GitHub Actions workflow files",
     )
-    parser.add_argument(
-        "--version", action="store_true", help="Show the version of the tool"
+
+    # list command
+    parser_list = subparsers.add_parser(
+        "list", help="List all supported Python versions"
     )
+    parser_list.add_argument(
+        "--json", action="store_true", help="Output result in JSON format"
+    )
+
+    # check-self command
+    parser_check_self = subparsers.add_parser(
+        "check-self", help="Check the current Python interpreter version"
+    )
+    parser_check_self.add_argument(
+        "--json", action="store_true", help="Output result in JSON format"
+    )
+
+    # refresh command
+    subparsers.add_parser("refresh", help="Refresh the EOL data from endoflife.date")
 
     args = parser.parse_args()
 
-    if args.version:
-        print(f"py-eol {__version__('py-eol')}")
-        sys.exit(0)
-    if args.refresh:
-        refresh_data()
-    elif args.check_self:
-        check_self(output_json=args.json)
-    elif args.list:
-        list_supported_versions(output_json=args.json)
-    elif args.versions:
+    if args.command == "versions":
         check_versions(args.versions, output_json=args.json)
-    elif args.file:
-        for file_path in args.file:
+    elif args.command == "files":
+        for file_path in args.files:
             file = Path(file_path)
             if file.name == "pyproject.toml":
                 _check_pyproject_toml(file)
@@ -139,6 +150,12 @@ def main():
                 _check_setup_py(file)
             elif file.suffix in (".yml", ".yaml") and ".github/workflows" in str(file):
                 _check_github_actions(file)
+    elif args.command == "list":
+        list_supported_versions(output_json=args.json)
+    elif args.command == "check-self":
+        check_self(output_json=args.json)
+    elif args.command == "refresh":
+        refresh_data()
     else:
         parser.print_help()
         sys.exit(0)
