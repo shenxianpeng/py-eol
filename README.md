@@ -87,7 +87,8 @@ repos:
       - id: py-eol
 ```
 
-> Note: It only checks `pyproject.toml`, `setup.py`, and GitHub Actions workflow files for Python versions.
+> [!NOTE]
+> It only checks `pyproject.toml`, `setup.py`, and GitHub Actions workflow files for Python versions.
 
 ## License
 
