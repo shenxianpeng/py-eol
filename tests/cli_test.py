@@ -212,9 +212,7 @@ def test_main_files_multiple(monkeypatch, capsys):
     Path("pyproject.toml").touch()
     Path("setup.py").touch()
 
-    monkeypatch.setattr(
-        sys, "argv", ["py-eol", "files", "pyproject.toml", "setup.py"]
-    )
+    monkeypatch.setattr(sys, "argv", ["py-eol", "files", "pyproject.toml", "setup.py"])
     monkeypatch.setattr(cli_mod, "_check_pyproject_toml", lambda f: False)
     monkeypatch.setattr(cli_mod, "_check_setup_py", lambda f: True)
     with pytest.raises(SystemExit) as e:

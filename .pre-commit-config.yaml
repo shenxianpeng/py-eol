@@ -37,5 +37,3 @@ repos:
         name: Check Python version EOL
         entry: py-eol files
         language: python
-        files: '(pyproject\.toml|setup\.py|\.github/workflows/.*\.ya?ml)'
-        types: [toml, python, yaml]
