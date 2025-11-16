@@ -87,6 +87,8 @@ py-eol list
 py-eol versions 3.8 3.9 --json
 
 # Refresh the latest EOL data
+# Data is fetched from PEP release cycle API (https://peps.python.org/api/release-cycle.json)
+# with fallback to endoflife.date API
 py-eol refresh
 ```
 
