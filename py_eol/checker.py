@@ -116,7 +116,7 @@ def _find_line_in_file(content: str, search_text: str) -> int:
     return 0
 
 
-def _print_eol_warning(version: str, file_path: str = None, line_num: int = None):  # type: ignore
+def _print_eol_warning(version: str, file_path: str = "", line_num: int = 0):
     """Print a warning if the given Python version is EOL."""
     eol_date = get_eol_date(version)
     msg = f"⚠️ Python {version} is already EOL since {eol_date.isoformat()}"
