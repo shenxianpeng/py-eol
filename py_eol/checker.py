@@ -44,10 +44,12 @@ def latest_supported_version() -> str:
 def _check_github_actions(file_path: str) -> bool:
     """Check if any Python version in the GitHub Actions workflow is EOL."""
     with open(file_path, "r") as f:
-        workflow = yaml.safe_load(f)
+        content = f.read()
+        workflow = yaml.safe_load(content)
 
+    found_eol = False
     jobs = workflow.get("jobs", {})
-    for job in jobs.values():
+    for job_name, job in jobs.items():
         strategy = job.get("strategy", {})
         matrix = strategy.get("matrix", {})
         python_versions = matrix.get("python-version", [])
@@ -55,8 +57,9 @@ def _check_github_actions(file_path: str) -> bool:
             if "x" in str(version):
                 continue
             if is_eol(version):
-                _print_eol_warning(version)
-                return True
+                line_num = _find_line_in_file(content, str(version))
+                _print_eol_warning(version, file_path, line_num)
+                found_eol = True
 
         steps = job.get("steps", [])
         for step in steps:
@@ -66,9 +69,10 @@ def _check_github_actions(file_path: str) -> bool:
                     if "x" in str(python_version):
                         continue
                     if is_eol(python_version):
-                        _print_eol_warning(python_version)
-                        return True
-    return False
+                        line_num = _find_line_in_file(content, str(python_version))
+                        _print_eol_warning(python_version, file_path, line_num)
+                        found_eol = True
+    return found_eol
 
 
 def _check_pyproject_toml(file_path: str) -> bool:
@@ -81,7 +85,8 @@ def _check_pyproject_toml(file_path: str) -> bool:
     specifier = SpecifierSet(match.group(1))
     min_version = min(specifier).version
     if is_eol(min_version):
-        _print_eol_warning(min_version)
+        line_num = _find_line_in_file(content, match.group(0))
+        _print_eol_warning(min_version, file_path, line_num)
         return True
     return False
 
@@ -96,15 +101,30 @@ def _check_setup_py(file_path: str) -> bool:
     specifier = SpecifierSet(match.group(1))
     min_version = min(specifier).version
     if is_eol(min_version):
-        _print_eol_warning(min_version)
+        line_num = _find_line_in_file(content, match.group(0))
+        _print_eol_warning(min_version, file_path, line_num)
         return True
     return False
 
 
-def _print_eol_warning(version: str):
+def _find_line_in_file(content: str, search_text: str) -> int:
+    """Find the line number where search_text appears in content."""
+    lines = content.split("\n")
+    for i, line in enumerate(lines, start=1):
+        if search_text in line:
+            return i
+    return 0
+
+
+def _print_eol_warning(version: str, file_path: str, line_num: int):
     """Print a warning if the given Python version is EOL."""
     eol_date = get_eol_date(version)
-    print(f"⚠️ Python {version} is already EOL since {eol_date.isoformat()}")
+    msg = f"⚠️ Python {version} is already EOL since {eol_date.isoformat()}"
+    if file_path and line_num:
+        msg = f"{file_path}:{line_num}: {msg}"
+    elif file_path:
+        msg = f"{file_path}: {msg}"
+    print(msg)
 
 
 def _print_supported_warning(version: str):

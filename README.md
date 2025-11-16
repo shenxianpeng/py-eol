@@ -47,48 +47,54 @@ print(latest_supported_version()) # 3.14
 
 ```
 py-eol --help
-usage: py-eol [-h] [--list] [--json] [--check-self] [--refresh] [--version] [versions ...]
+usage: py-eol [-h] [--version] {versions,files,list,check-self,refresh} ...
 
 Check if a Python version is EOL (End Of Life).
 
 positional arguments:
-  versions      Python versions to check, e.g., 3.11 3.12
+  {versions,files,list,check-self,refresh}
+                        sub-command help
+    versions            Check specific Python versions
+    files               Check files for Python versions
+    list                List all supported Python versions
+    check-self          Check the current Python interpreter version
+    refresh             Refresh the EOL data from endoflife.date
 
 options:
-  -h, --help    show this help message and exit
-  --list        List all supported Python versions
-  --json        Output result in JSON format
-  --check-self  Check the current Python interpreter version
-  --refresh     Refresh the EOL data from endoflife.date
-  --version     Show the version of the tool
+  -h, --help            show this help message and exit
+  --version             Show the version of the tool
 ```
 
 Examples
 
 ```bash
 # Check a specific version
-py-eol 3.9
+py-eol versions 3.9
 
 # Check multiple versions
-py-eol 3.7 3.8 3.11
+py-eol versions 3.7 3.8 3.11
+
+# Check files for EOL Python versions (shows file:line information)
+py-eol files pyproject.toml setup.py .github/workflows/ci.yml
 
 # Check current Python interpreter
-py-eol --check-self
+py-eol check-self
 
 # List all currently supported versions
-py-eol --list
+py-eol list
 
 # Output result in JSON format
-py-eol 3.8 3.9 --json
+py-eol versions 3.8 3.9 --json
 
 # Refresh the latest EOL data
-py-eol --refresh
+py-eol refresh
 ```
 
 ### As a pre-commit hook
 
 > [!NOTE]
 > This hook checks Python versions specified in pyproject.toml, setup.py, and GitHub Actions workflow files.
+> When an EOL version is found, it reports the exact file and line number for easy identification.
 
 To use `py-eol` as a pre-commit hook, you can add the following configuration to your `.pre-commit-config.yaml` file:
 
@@ -98,6 +104,17 @@ repos:
     rev:  # Use the ref you want to point at
     hooks:
       - id: py-eol
+```
+
+Example output:
+
+```
+Check Python version EOL.................................................Failed
+- hook id: py-eol
+- exit code: 1
+
+pyproject.toml:9: ⚠️ Python 3.7 is already EOL since 2023-06-27
+.github/workflows/ci.yml:16: ⚠️ Python 3.9 is already EOL since 2025-10-31
 ```
 
 ## License

@@ -2,7 +2,6 @@ import sys
 import pytest
 import py_eol.cli as cli_mod
 from unittest.mock import MagicMock
-from pathlib import Path
 
 
 def test_main_version(monkeypatch, capsys):
@@ -207,18 +206,32 @@ def test_main_files_not_found(monkeypatch, capsys):
     mock_exit.assert_not_called()
 
 
-def test_main_files_multiple(monkeypatch, capsys):
-    # Create dummy files
-    Path("pyproject.toml").touch()
-    Path("setup.py").touch()
+def test_main_files_multiple(monkeypatch, capsys, tmp_path):
+    # Create dummy files in temp directory
+    pyproject_file = tmp_path / "pyproject.toml"
+    setup_file = tmp_path / "setup.py"
+    pyproject_file.touch()
+    setup_file.touch()
 
-    monkeypatch.setattr(sys, "argv", ["py-eol", "files", "pyproject.toml", "setup.py"])
+    monkeypatch.setattr(
+        sys, "argv", ["py-eol", "files", str(pyproject_file), str(setup_file)]
+    )
     monkeypatch.setattr(cli_mod, "_check_pyproject_toml", lambda f: False)
     monkeypatch.setattr(cli_mod, "_check_setup_py", lambda f: True)
     with pytest.raises(SystemExit) as e:
         cli_mod.main()
     assert e.value.code == 1
 
-    # Clean up dummy files
-    Path("pyproject.toml").unlink()
-    Path("setup.py").unlink()
+
+def test_main_files_github_actions(monkeypatch, capsys, tmp_path):
+    # Create a GitHub Actions workflow file
+    workflows_dir = tmp_path / ".github" / "workflows"
+    workflows_dir.mkdir(parents=True)
+    workflow_file = workflows_dir / "test.yml"
+    workflow_file.touch()
+
+    monkeypatch.setattr(sys, "argv", ["py-eol", "files", str(workflow_file)])
+    monkeypatch.setattr(cli_mod, "_check_github_actions", lambda f: True)
+    with pytest.raises(SystemExit) as e:
+        cli_mod.main()
+    assert e.value.code == 1
