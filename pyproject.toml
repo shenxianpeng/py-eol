@@ -12,7 +12,7 @@ authors = [
 ]
 dynamic = ["version"]
 license = "MIT"
-dependencies = ["requests"]
+dependencies = ["requests", "PyYAML", "packaging"]
 
 [project.urls]
 Homepage = "https://github.com/shenxianpeng/py-eol"
