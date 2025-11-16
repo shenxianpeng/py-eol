@@ -6,7 +6,6 @@ build-backend = "setuptools.build_meta"
 name = "py-eol"
 description = "Check if a Python version is End-Of-Life (EOL)"
 readme = "README.md"
-requires-python = ">=3.9"
 keywords = ["python", "eol", "end-of-life"]
 authors = [
     { name="Xianpeng Shen", email="xianpeng.shen@gmail.com" }
