@@ -32,13 +32,10 @@ def normalize_pep_data(data):
         # Handle different possible field names
         version = entry.get("version") or entry.get("cycle")
         eol_date = entry.get("end_of_life") or entry.get("eol")
-        
+
         if version and eol_date:
-            normalized.append({
-                "cycle": str(version),
-                "eol": str(eol_date)
-            })
-    
+            normalized.append({"cycle": str(version), "eol": str(eol_date)})
+
     return normalized
 
 

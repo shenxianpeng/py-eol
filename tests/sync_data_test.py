@@ -49,7 +49,9 @@ def test_fetch_py_eol_data_success(monkeypatch):
         def json(self):
             return [{"cycle": "3.99", "eol": "2099-01-01"}]
 
-    monkeypatch.setattr(sync_data_mod.requests, "get", lambda url, **kwargs: MockResponse())
+    monkeypatch.setattr(
+        sync_data_mod.requests, "get", lambda url, **kwargs: MockResponse()
+    )
     result = sync_data_mod.fetch_py_eol_data()
     assert isinstance(result, list)
     assert result[0]["cycle"] == "3.99"
@@ -60,7 +62,9 @@ def test_fetch_py_eol_data_http_error(monkeypatch):
         def raise_for_status(self):
             raise Exception("HTTP error")
 
-    monkeypatch.setattr(sync_data_mod.requests, "get", lambda url, **kwargs: MockResponse())
+    monkeypatch.setattr(
+        sync_data_mod.requests, "get", lambda url, **kwargs: MockResponse()
+    )
     with pytest.raises(Exception):
         sync_data_mod.fetch_py_eol_data()
 

@@ -135,7 +135,9 @@ def main():
     )
 
     # refresh command
-    subparsers.add_parser("refresh", help="Refresh the EOL data from PEP API or endoflife.date")
+    subparsers.add_parser(
+        "refresh", help="Refresh the EOL data from PEP API or endoflife.date"
+    )
 
     args = parser.parse_args()
 
