@@ -31,9 +31,3 @@ repos:
     rev: v2.4.1
     hooks:
     -   id: codespell
--   repo: local
-    hooks:
-    -   id: py-eol
-        name: Check Python version EOL
-        entry: py-eol files
-        language: python
