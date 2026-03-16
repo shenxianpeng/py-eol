@@ -141,6 +141,22 @@ def test_print_eol_soon_warning_with_file(capsys, monkeypatch):
     assert "test.py:5: ⏰ Python 3.99 will be EOL on" in captured.out
 
 
+def test_print_eol_soon_warning_with_file_no_line(capsys, monkeypatch):
+    import py_eol.checker as checker
+
+    future_date = datetime.date.today() + datetime.timedelta(days=60)
+    monkeypatch.setitem(checker.EOL_DATES, "3.99", future_date)
+    _print_eol_soon_warning("3.99", "test.py")
+    captured = capsys.readouterr()
+    assert "test.py: ⏰ Python 3.99 will be EOL on" in captured.out
+
+
+def test_check_version_status_unknown_version():
+    from py_eol.checker import _check_version_status
+    result = _check_version_status("9.99", "test.py", 1)
+    assert result is False
+
+
 def test_print_supported_warning(capsys):
     _print_supported_warning("3.12")
     captured = capsys.readouterr()
