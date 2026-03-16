@@ -2,10 +2,10 @@ from pathlib import Path
 import sys
 import argparse
 import json
+from datetime import date
 from py_eol.checker import (
     is_eol,
     get_eol_date,
-    days_until_eol,
     is_eol_soon,
     supported_versions,
     _check_pyproject_toml,
@@ -45,7 +45,7 @@ def check_versions(versions, output_json=False, warn_before_days=0):
                     "version": version,
                     "status": status,
                     "eol_date": eol_date.isoformat(),
-                    "days_until_eol": days_until_eol(version),
+                    "days_until_eol": (eol_date - date.today()).days,
                 }
             )
         except ValueError as e:

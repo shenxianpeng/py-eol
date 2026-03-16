@@ -28,6 +28,27 @@ def days_until_eol(version: str) -> int:
     return delta.days
 
 
+def _normalize_version(version: str) -> str:
+    """
+    Normalize a Python version string to a form compatible with EOL_DATES.
+
+    If the exact version is present in EOL_DATES, it is returned unchanged.
+    Otherwise, if the version has at least major and minor components and the
+    corresponding "major.minor" exists in EOL_DATES, that normalized form is
+    returned. In all other cases, the original version string is returned.
+    """
+    if version in EOL_DATES:
+        return version
+
+    parts = version.split(".")
+    if len(parts) >= 2:
+        major_minor = ".".join(parts[:2])
+        if major_minor in EOL_DATES:
+            return major_minor
+
+    return version
+
+
 def is_eol_soon(version: str, warn_before_days: int) -> bool:
     """Check if the given Python version will be EOL within the specified days."""
     days = days_until_eol(version)
@@ -54,6 +75,16 @@ def latest_supported_version() -> str:
     return max(versions, key=lambda v: tuple(map(int, v.split("."))))
 
 
+def _normalize_version(version: str) -> str:
+    """Normalize version strings like '3.12.0' to '3.12' for EOL lookup."""
+    text = str(version).strip()
+    match = re.match(r"^(\d+)\.(\d+)(?:\.\d+)?$", text)
+    if match:
+        major, minor = match.group(1), match.group(2)
+        return f"{major}.{minor}"
+    return text
+
+
 def _check_version_status(
     version: str,
     file_path: str = "",
@@ -62,11 +93,12 @@ def _check_version_status(
 ) -> bool:
     """Check version EOL status and print appropriate warning. Returns True if action needed."""
     try:
-        if is_eol(version):
-            _print_eol_warning(version, file_path, line_num)
+        normalized_version = _normalize_version(version)
+        if is_eol(normalized_version):
+            _print_eol_warning(normalized_version, file_path, line_num)
             return True
-        elif warn_before_days > 0 and is_eol_soon(version, warn_before_days):
-            _print_eol_soon_warning(version, file_path, line_num)
+        elif warn_before_days > 0 and is_eol_soon(normalized_version, warn_before_days):
+            _print_eol_soon_warning(normalized_version, file_path, line_num)
             return True
     except ValueError:
         pass
@@ -86,11 +118,13 @@ def _check_github_actions(file_path: str, warn_before_days: int = 0) -> bool:
         matrix = strategy.get("matrix", {})
         python_versions = matrix.get("python-version", [])
         for version in python_versions:
-            if "x" in str(version):
+            version_str = str(version)
+            if "x" in version_str:
                 continue
-            line_num = _find_line_in_file(content, str(version))
+            normalized_version = _normalize_version(version_str)
+            line_num = _find_line_in_file(content, version_str)
             if _check_version_status(
-                str(version), file_path, line_num, warn_before_days
+                normalized_version, file_path, line_num, warn_before_days
             ):
                 found_eol = True
 
@@ -99,11 +133,16 @@ def _check_github_actions(file_path: str, warn_before_days: int = 0) -> bool:
             if "uses" in step and "actions/setup-python" in step["uses"]:
                 python_version = step.get("with", {}).get("python-version")
                 if python_version:
-                    if "x" in str(python_version):
+                    python_version_str = str(python_version)
+                    if "x" in python_version_str:
                         continue
-                    line_num = _find_line_in_file(content, str(python_version))
+                    normalized_python_version = _normalize_version(python_version_str)
+                    line_num = _find_line_in_file(content, python_version_str)
                     if _check_version_status(
-                        str(python_version), file_path, line_num, warn_before_days
+                        normalized_python_version,
+                        file_path,
+                        line_num,
+                        warn_before_days,
                     ):
                         found_eol = True
     return found_eol
@@ -111,7 +150,8 @@ def _check_github_actions(file_path: str, warn_before_days: int = 0) -> bool:
 
 def _check_pyproject_toml(file_path: str, warn_before_days: int = 0) -> bool:
     """Check if the Python version specified in pyproject.toml is EOL."""
-    content = open(file_path).read()
+    with open(file_path, encoding="utf-8") as f:
+        content = f.read()
     match = re.search(r'requires-python\s*=\s*"(.*?)"', content)
     if not match:
         return False
@@ -124,7 +164,8 @@ def _check_pyproject_toml(file_path: str, warn_before_days: int = 0) -> bool:
 
 def _check_setup_py(file_path: str, warn_before_days: int = 0) -> bool:
     """Check if the Python version specified in setup.py is EOL."""
-    content = open(file_path).read()
+    with open(file_path, encoding="utf-8") as f:
+        content = f.read()
     match = re.search(r"python_requires\s*=\s*['\"](.*?)['\"]", content)
     if not match:
         return False
@@ -137,7 +178,8 @@ def _check_setup_py(file_path: str, warn_before_days: int = 0) -> bool:
 
 def _check_python_version_file(file_path: str, warn_before_days: int = 0) -> bool:
     """Check if the Python version in .python-version file is EOL."""
-    content = open(file_path).read().strip()
+    with open(file_path, encoding="utf-8") as f:
+        content = f.read().strip()
     match = re.match(r"^(\d+\.\d+)", content)
     if not match:
         return False

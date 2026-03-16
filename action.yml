@@ -58,10 +58,18 @@ runs:
           exit 0
         fi
 
-        CMD="py-eol files $FILES"
+        # Build argument array for py-eol to avoid eval-based command execution
+        # Split FILES on whitespace into an array
+        read -r -a FILE_ARGS <<< "$FILES"
+
+        CMD_ARGS=(files)
+        for f in "${FILE_ARGS[@]}"; do
+          CMD_ARGS+=("$f")
+        done
+
         if [ "$WARN_BEFORE" != "0" ]; then
-          CMD="$CMD --warn-before $WARN_BEFORE"
+          CMD_ARGS+=(--warn-before "$WARN_BEFORE")
         fi
 
-        echo "Running: $CMD"
-        eval "$CMD"
+        echo "Running: py-eol ${CMD_ARGS[*]}"
+        py-eol "${CMD_ARGS[@]}"
