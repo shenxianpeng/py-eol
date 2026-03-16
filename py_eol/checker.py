@@ -28,27 +28,6 @@ def days_until_eol(version: str) -> int:
     return delta.days
 
 
-def _normalize_version(version: str) -> str:
-    """
-    Normalize a Python version string to a form compatible with EOL_DATES.
-
-    If the exact version is present in EOL_DATES, it is returned unchanged.
-    Otherwise, if the version has at least major and minor components and the
-    corresponding "major.minor" exists in EOL_DATES, that normalized form is
-    returned. In all other cases, the original version string is returned.
-    """
-    if version in EOL_DATES:
-        return version
-
-    parts = version.split(".")
-    if len(parts) >= 2:
-        major_minor = ".".join(parts[:2])
-        if major_minor in EOL_DATES:
-            return major_minor
-
-    return version
-
-
 def is_eol_soon(version: str, warn_before_days: int) -> bool:
     """Check if the given Python version will be EOL within the specified days."""
     days = days_until_eol(version)

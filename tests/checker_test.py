@@ -158,6 +158,14 @@ def test_check_version_status_unknown_version():
     assert result is False
 
 
+def test_normalize_version():
+    from py_eol.checker import _normalize_version
+
+    assert _normalize_version("3.12") == "3.12"
+    assert _normalize_version("3.12.0") == "3.12"
+    assert _normalize_version("system") == "system"
+
+
 def test_print_supported_warning(capsys):
     _print_supported_warning("3.12")
     captured = capsys.readouterr()

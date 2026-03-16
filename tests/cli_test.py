@@ -91,7 +91,6 @@ def test_check_versions_supported(monkeypatch, capsys):
     )
     monkeypatch.setattr(cli_mod, "is_eol", lambda v: False)
     monkeypatch.setattr(cli_mod, "is_eol_soon", lambda v, d: False)
-    monkeypatch.setattr(cli_mod, "days_until_eol", lambda v: 999)
     monkeypatch.setattr(
         "py_eol.checker.get_eol_date",
         lambda v: sys.modules["datetime"].date(2099, 1, 1),
@@ -108,7 +107,6 @@ def test_check_versions_eol(monkeypatch, capsys):
         cli_mod, "get_eol_date", lambda v: sys.modules["datetime"].date(2000, 1, 1)
     )
     monkeypatch.setattr(cli_mod, "is_eol", lambda v: True)
-    monkeypatch.setattr(cli_mod, "days_until_eol", lambda v: -1000)
     monkeypatch.setattr(
         "py_eol.checker.get_eol_date",
         lambda v: sys.modules["datetime"].date(2000, 1, 1),
@@ -125,7 +123,6 @@ def test_check_versions_eol_soon(monkeypatch, capsys):
     monkeypatch.setattr(cli_mod, "get_eol_date", lambda v: future_date)
     monkeypatch.setattr(cli_mod, "is_eol", lambda v: False)
     monkeypatch.setattr(cli_mod, "is_eol_soon", lambda v, d: True)
-    monkeypatch.setattr(cli_mod, "days_until_eol", lambda v: 60)
     monkeypatch.setattr("py_eol.checker.get_eol_date", lambda v: future_date)
     with pytest.raises(SystemExit) as e:
         cli_mod.check_versions(["3.99"], warn_before_days=90)
@@ -153,7 +150,6 @@ def test_check_versions_json(monkeypatch, capsys):
     )
     monkeypatch.setattr(cli_mod, "is_eol", lambda v: False)
     monkeypatch.setattr(cli_mod, "is_eol_soon", lambda v, d: False)
-    monkeypatch.setattr(cli_mod, "days_until_eol", lambda v: 999)
     with pytest.raises(SystemExit) as e:
         cli_mod.check_versions(["3.99"], output_json=True)
     out = capsys.readouterr().out
@@ -169,13 +165,12 @@ def test_check_versions_json_includes_days_until_eol(monkeypatch, capsys):
     )
     monkeypatch.setattr(cli_mod, "is_eol", lambda v: False)
     monkeypatch.setattr(cli_mod, "is_eol_soon", lambda v, d: False)
-    monkeypatch.setattr(cli_mod, "days_until_eol", lambda v: 999)
     with pytest.raises(SystemExit):
         cli_mod.check_versions(["3.99"], output_json=True)
     out = capsys.readouterr().out
     data = json.loads(out)
     assert "days_until_eol" in data[0]
-    assert data[0]["days_until_eol"] == 999
+    assert data[0]["days_until_eol"] > 0
 
 
 def test_list_supported_versions(monkeypatch, capsys):
