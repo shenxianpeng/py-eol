@@ -153,6 +153,7 @@ def test_print_eol_soon_warning_with_file_no_line(capsys, monkeypatch):
 
 def test_check_version_status_unknown_version():
     from py_eol.checker import _check_version_status
+
     result = _check_version_status("9.99", "test.py", 1)
     assert result is False
 
