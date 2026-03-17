@@ -343,7 +343,9 @@ def test_check_setup_py_no_python_requires():
 def test_check_setup_py_compound_specifier_eol(capsys):
     """python_requires=">=3.7,<4" should detect 3.7 as EOL."""
     with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
-        f.write('from setuptools import setup\nsetup(\n    python_requires=">=3.7,<4"\n)\n')
+        f.write(
+            'from setuptools import setup\nsetup(\n    python_requires=">=3.7,<4"\n)\n'
+        )
         f.flush()
         temp_file = f.name
 
