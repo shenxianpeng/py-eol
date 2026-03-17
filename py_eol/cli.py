@@ -6,6 +6,7 @@ from datetime import date
 from py_eol.checker import (
     is_eol,
     get_eol_date,
+    is_eol_soon,
     supported_versions,
     _check_pyproject_toml,
     _check_setup_py,
@@ -32,7 +33,9 @@ def check_versions(versions, output_json=False, warn_before_days=0):
             days_until_eol = (eol_date - today).days
             eol = is_eol(version)
             soon = (
-                not eol and warn_before_days > 0 and days_until_eol <= warn_before_days
+                not eol
+                and warn_before_days > 0
+                and is_eol_soon(version, warn_before_days)
             )
             if eol:
                 status = "EOL"
