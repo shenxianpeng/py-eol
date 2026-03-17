@@ -1,8 +1,10 @@
 import datetime
 import re
+from typing import Optional
 import yaml
 from py_eol._eol_data import EOL_DATES
 from packaging.specifiers import SpecifierSet
+from packaging.version import Version
 
 
 def is_eol(version: str) -> bool:
@@ -52,6 +54,22 @@ def latest_supported_version() -> str:
     if not versions:
         raise RuntimeError("No supported Python versions found.")
     return max(versions, key=lambda v: tuple(map(int, v.split("."))))
+
+
+def _min_required_version(specifier_str: str) -> Optional[str]:
+    """Return the minimum required Python version from a specifier string.
+
+    Takes the highest lower-bound among >=, ==, and ~= specifiers.
+    Returns None if no lower-bound specifier is found.
+    """
+    lower_bounds = [
+        Version(spec.version)
+        for spec in SpecifierSet(specifier_str)
+        if spec.operator in (">=", "==", "~=")
+    ]
+    if not lower_bounds:
+        return None
+    return str(max(lower_bounds))
 
 
 def _normalize_version(version: str) -> str:
@@ -135,8 +153,9 @@ def _check_pyproject_toml(file_path: str, warn_before_days: int = 0) -> bool:
     if not match:
         return False
 
-    specifier = SpecifierSet(match.group(1))
-    min_version = min(specifier).version
+    min_version = _min_required_version(match.group(1))
+    if not min_version:
+        return False
     line_num = _find_line_in_file(content, match.group(0))
     return _check_version_status(min_version, file_path, line_num, warn_before_days)
 
@@ -149,8 +168,9 @@ def _check_setup_py(file_path: str, warn_before_days: int = 0) -> bool:
     if not match:
         return False
 
-    specifier = SpecifierSet(match.group(1))
-    min_version = min(specifier).version
+    min_version = _min_required_version(match.group(1))
+    if not min_version:
+        return False
     line_num = _find_line_in_file(content, match.group(0))
     return _check_version_status(min_version, file_path, line_num, warn_before_days)
 

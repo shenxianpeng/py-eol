@@ -217,6 +217,63 @@ def test_check_pyproject_toml_no_requires_python():
         os.unlink(temp_file)
 
 
+def test_check_pyproject_toml_compound_specifier_eol(capsys):
+    """requires-python = ">=3.7,<4" should detect 3.7 as EOL."""
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False) as f:
+        f.write('[project]\nrequires-python = ">=3.7,<4"\n')
+        f.flush()
+        temp_file = f.name
+
+    try:
+        result = _check_pyproject_toml(temp_file)
+        assert result is True
+        captured = capsys.readouterr()
+        assert "⚠️ Python 3.7 is already EOL" in captured.out
+    finally:
+        os.unlink(temp_file)
+
+
+def test_check_pyproject_toml_compound_specifier_supported(capsys):
+    """requires-python = ">=3.12,<4" should not flag EOL."""
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False) as f:
+        f.write('[project]\nrequires-python = ">=3.12,<4"\n')
+        f.flush()
+        temp_file = f.name
+
+    try:
+        result = _check_pyproject_toml(temp_file)
+        assert result is False
+        captured = capsys.readouterr()
+        assert "EOL" not in captured.out
+    finally:
+        os.unlink(temp_file)
+
+
+def test_check_pyproject_toml_only_upper_bound():
+    """requires-python = "<4" has no lower bound — nothing to check."""
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False) as f:
+        f.write('[project]\nrequires-python = "<4"\n')
+        f.flush()
+        temp_file = f.name
+
+    try:
+        result = _check_pyproject_toml(temp_file)
+        assert result is False
+    finally:
+        os.unlink(temp_file)
+
+
+def test_min_required_version():
+    from py_eol.checker import _min_required_version
+
+    assert _min_required_version(">=3.7") == "3.7"
+    assert _min_required_version(">=3.7,<4") == "3.7"
+    assert _min_required_version(">=3.9,>=3.10") == "3.10"
+    assert _min_required_version("==3.11") == "3.11"
+    assert _min_required_version("~=3.10") == "3.10"
+    assert _min_required_version("<4") is None
+
+
 def test_check_pyproject_toml_warn_before(capsys, monkeypatch):
     import py_eol.checker as checker
 
@@ -273,6 +330,36 @@ def test_check_setup_py_supported(capsys):
 def test_check_setup_py_no_python_requires():
     with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
         f.write('from setuptools import setup\nsetup(name="test")\n')
+        f.flush()
+        temp_file = f.name
+
+    try:
+        result = _check_setup_py(temp_file)
+        assert result is False
+    finally:
+        os.unlink(temp_file)
+
+
+def test_check_setup_py_compound_specifier_eol(capsys):
+    """python_requires=">=3.7,<4" should detect 3.7 as EOL."""
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
+        f.write('from setuptools import setup\nsetup(\n    python_requires=">=3.7,<4"\n)\n')
+        f.flush()
+        temp_file = f.name
+
+    try:
+        result = _check_setup_py(temp_file)
+        assert result is True
+        captured = capsys.readouterr()
+        assert "⚠️ Python 3.7 is already EOL" in captured.out
+    finally:
+        os.unlink(temp_file)
+
+
+def test_check_setup_py_only_upper_bound():
+    """python_requires="<4" has no lower bound — nothing to check."""
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
+        f.write('from setuptools import setup\nsetup(\n    python_requires="<4"\n)\n')
         f.flush()
         temp_file = f.name
 
