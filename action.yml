@@ -1,0 +1,75 @@
+name: 'py-eol'
+description: 'Check if Python versions in your project are End-Of-Life'
+author: 'shenxianpeng'
+
+branding:
+  icon: 'alert-triangle'
+  color: 'orange'
+
+inputs:
+  files:
+    description: >
+      Space-separated list of files to check (e.g. "pyproject.toml .python-version Dockerfile").
+      Auto-detects common files if not specified.
+    required: false
+    default: ''
+  warn-before:
+    description: 'Warn if Python version will be EOL within this many days (0 to disable)'
+    required: false
+    default: '0'
+  version:
+    description: 'py-eol version to install (defaults to latest)'
+    required: false
+    default: 'latest'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install py-eol
+      shell: bash
+      run: |
+        if [ "${{ inputs.version }}" = "latest" ]; then
+          pip install py-eol --quiet
+        else
+          pip install "py-eol==${{ inputs.version }}" --quiet
+        fi
+
+    - name: Check Python EOL
+      shell: bash
+      run: |
+        FILES="${{ inputs.files }}"
+        WARN_BEFORE="${{ inputs.warn-before }}"
+
+        if [ -z "$FILES" ]; then
+          DETECTED_FILES=""
+          for f in pyproject.toml setup.py .python-version tox.ini Dockerfile; do
+            [ -f "$f" ] && DETECTED_FILES="$DETECTED_FILES $f"
+          done
+          if [ -d ".github/workflows" ]; then
+            for wf in .github/workflows/*.yml .github/workflows/*.yaml; do
+              [ -f "$wf" ] && DETECTED_FILES="$DETECTED_FILES $wf"
+            done
+          fi
+          FILES="$DETECTED_FILES"
+        fi
+
+        if [ -z "$FILES" ]; then
+          echo "No files to check found."
+          exit 0
+        fi
+
+        # Build argument array for py-eol to avoid eval-based command execution
+        # Split FILES on whitespace into an array
+        read -r -a FILE_ARGS <<< "$FILES"
+
+        CMD_ARGS=(files)
+        for f in "${FILE_ARGS[@]}"; do
+          CMD_ARGS+=("$f")
+        done
+
+        if [ "$WARN_BEFORE" != "0" ]; then
+          CMD_ARGS+=(--warn-before "$WARN_BEFORE")
+        fi
+
+        echo "Running: py-eol ${CMD_ARGS[*]}"
+        py-eol "${CMD_ARGS[@]}"

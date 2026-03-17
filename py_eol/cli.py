@@ -2,32 +2,53 @@ from pathlib import Path
 import sys
 import argparse
 import json
+from datetime import date
 from py_eol.checker import (
     is_eol,
     get_eol_date,
+    is_eol_soon,
     supported_versions,
     _check_pyproject_toml,
     _check_setup_py,
     _check_github_actions,
+    _check_python_version_file,
+    _check_tox_ini,
+    _check_dockerfile,
     _print_eol_warning,
+    _print_eol_soon_warning,
     _print_supported_warning,
 )
 from py_eol.sync_data import sync_data
 from importlib.metadata import version as __version__
 
 
-def check_versions(versions, output_json=False):
+def check_versions(versions, output_json=False, warn_before_days=0):
     results = []
+
+    today = date.today()
 
     for version in versions:
         try:
             eol_date = get_eol_date(version)
-            status = "EOL" if is_eol(version) else "Supported"
+            days_until_eol = (eol_date - today).days
+            eol = is_eol(version)
+            soon = (
+                not eol
+                and warn_before_days > 0
+                and is_eol_soon(version, warn_before_days)
+            )
+            if eol:
+                status = "EOL"
+            elif soon:
+                status = "EOL_SOON"
+            else:
+                status = "Supported"
             results.append(
                 {
                     "version": version,
                     "status": status,
                     "eol_date": eol_date.isoformat(),
+                    "days_until_eol": days_until_eol,
                 }
             )
         except ValueError as e:
@@ -47,12 +68,14 @@ def check_versions(versions, output_json=False):
                 _print_supported_warning(r["version"])
             elif r["status"] == "EOL":
                 _print_eol_warning(r["version"])
+            elif r["status"] == "EOL_SOON":
+                _print_eol_soon_warning(r["version"])
             else:
                 print(f"❌ Error checking {r['version']}: {r['error']}")
 
     if any(r["status"] == "Unknown" for r in results):
         sys.exit(2)
-    elif any(r["status"] == "EOL" for r in results):
+    elif any(r["status"] in ("EOL", "EOL_SOON") for r in results):
         sys.exit(1)
     else:
         sys.exit(0)
@@ -107,6 +130,13 @@ def main():
     parser_versions.add_argument(
         "--json", action="store_true", help="Output result in JSON format"
     )
+    parser_versions.add_argument(
+        "--warn-before",
+        type=int,
+        default=0,
+        metavar="DAYS",
+        help="Warn if Python version will be EOL within DAYS days",
+    )
 
     # files command
     parser_files = subparsers.add_parser(
@@ -115,7 +145,17 @@ def main():
     parser_files.add_argument(
         "files",
         nargs="+",
-        help="Files to check for Python versions, e.g., pyproject.toml, setup.py, GitHub Actions workflow files",
+        help=(
+            "Files to check for Python versions, e.g., pyproject.toml, setup.py, "
+            ".python-version, tox.ini, Dockerfile, GitHub Actions workflow files"
+        ),
+    )
+    parser_files.add_argument(
+        "--warn-before",
+        type=int,
+        default=0,
+        metavar="DAYS",
+        help="Warn if Python version will be EOL within DAYS days",
     )
 
     # list command
@@ -140,19 +180,31 @@ def main():
     args = parser.parse_args()
 
     if args.command == "versions":
-        check_versions(args.versions, output_json=args.json)
+        check_versions(
+            args.versions, output_json=args.json, warn_before_days=args.warn_before
+        )
     elif args.command == "files":
+        warn_before_days = args.warn_before
         eol_found = False
         for file_path in args.files:
             file = Path(file_path)
             if file.name == "pyproject.toml":
-                if _check_pyproject_toml(file):
+                if _check_pyproject_toml(file, warn_before_days):
                     eol_found = True
             elif file.name == "setup.py":
-                if _check_setup_py(file):
+                if _check_setup_py(file, warn_before_days):
+                    eol_found = True
+            elif file.name == ".python-version":
+                if _check_python_version_file(file, warn_before_days):
+                    eol_found = True
+            elif file.name == "tox.ini":
+                if _check_tox_ini(file, warn_before_days):
+                    eol_found = True
+            elif file.name.startswith("Dockerfile"):
+                if _check_dockerfile(file, warn_before_days):
                     eol_found = True
             elif file.suffix in (".yml", ".yaml") and ".github/workflows" in str(file):
-                if _check_github_actions(file):
+                if _check_github_actions(file, warn_before_days):
                     eol_found = True
         if eol_found:
             sys.exit(1)

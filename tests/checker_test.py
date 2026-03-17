@@ -5,6 +5,8 @@ import os
 from py_eol import (
     is_eol,
     get_eol_date,
+    days_until_eol,
+    is_eol_soon,
     supported_versions,
     eol_versions,
     latest_supported_version,
@@ -13,8 +15,12 @@ from py_eol.checker import (
     _check_pyproject_toml,
     _check_setup_py,
     _check_github_actions,
+    _check_python_version_file,
+    _check_tox_ini,
+    _check_dockerfile,
     _find_line_in_file,
     _print_eol_warning,
+    _print_eol_soon_warning,
     _print_supported_warning,
 )
 
@@ -40,6 +46,24 @@ def test_get_eol_date_unknown_version():
         get_eol_date("4.0")
 
 
+def test_days_until_eol_past():
+    days = days_until_eol("2.7")
+    assert days < 0
+
+
+def test_days_until_eol_future():
+    days = days_until_eol("3.12")
+    assert isinstance(days, int)
+
+
+def test_is_eol_soon_false_for_eol():
+    assert is_eol_soon("2.7", 180) is False
+
+
+def test_is_eol_soon_false_for_far_future():
+    assert is_eol_soon("3.14", 30) is False
+
+
 def test_supported_versions_not_empty():
     versions = supported_versions()
     assert isinstance(versions, list)
@@ -58,7 +82,6 @@ def test_latest_supported_version():
 
 
 def test_latest_supported_version_no_supported(monkeypatch):
-    # Monkeypatch EOL_DATES so all versions are EOL
     import py_eol.checker as checker
 
     old_eol_dates = checker.EOL_DATES.copy()
@@ -95,6 +118,52 @@ def test_print_eol_warning_with_file_and_line(capsys):
     _print_eol_warning("3.7", "test.py", 42)
     captured = capsys.readouterr()
     assert "test.py:42: ⚠️ Python 3.7 is already EOL" in captured.out
+
+
+def test_print_eol_soon_warning_no_file(capsys, monkeypatch):
+    import py_eol.checker as checker
+
+    future_date = datetime.date.today() + datetime.timedelta(days=60)
+    monkeypatch.setitem(checker.EOL_DATES, "3.99", future_date)
+    _print_eol_soon_warning("3.99")
+    captured = capsys.readouterr()
+    assert "⏰ Python 3.99 will be EOL on" in captured.out
+    assert "days remaining" in captured.out
+
+
+def test_print_eol_soon_warning_with_file(capsys, monkeypatch):
+    import py_eol.checker as checker
+
+    future_date = datetime.date.today() + datetime.timedelta(days=60)
+    monkeypatch.setitem(checker.EOL_DATES, "3.99", future_date)
+    _print_eol_soon_warning("3.99", "test.py", 5)
+    captured = capsys.readouterr()
+    assert "test.py:5: ⏰ Python 3.99 will be EOL on" in captured.out
+
+
+def test_print_eol_soon_warning_with_file_no_line(capsys, monkeypatch):
+    import py_eol.checker as checker
+
+    future_date = datetime.date.today() + datetime.timedelta(days=60)
+    monkeypatch.setitem(checker.EOL_DATES, "3.99", future_date)
+    _print_eol_soon_warning("3.99", "test.py")
+    captured = capsys.readouterr()
+    assert "test.py: ⏰ Python 3.99 will be EOL on" in captured.out
+
+
+def test_check_version_status_unknown_version():
+    from py_eol.checker import _check_version_status
+
+    result = _check_version_status("9.99", "test.py", 1)
+    assert result is False
+
+
+def test_normalize_version():
+    from py_eol.checker import _normalize_version
+
+    assert _normalize_version("3.12") == "3.12"
+    assert _normalize_version("3.12.0") == "3.12"
+    assert _normalize_version("system") == "system"
 
 
 def test_print_supported_warning(capsys):
@@ -148,6 +217,81 @@ def test_check_pyproject_toml_no_requires_python():
         os.unlink(temp_file)
 
 
+def test_check_pyproject_toml_compound_specifier_eol(capsys):
+    """requires-python = ">=3.7,<4" should detect 3.7 as EOL."""
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False) as f:
+        f.write('[project]\nrequires-python = ">=3.7,<4"\n')
+        f.flush()
+        temp_file = f.name
+
+    try:
+        result = _check_pyproject_toml(temp_file)
+        assert result is True
+        captured = capsys.readouterr()
+        assert "⚠️ Python 3.7 is already EOL" in captured.out
+    finally:
+        os.unlink(temp_file)
+
+
+def test_check_pyproject_toml_compound_specifier_supported(capsys):
+    """requires-python = ">=3.12,<4" should not flag EOL."""
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False) as f:
+        f.write('[project]\nrequires-python = ">=3.12,<4"\n')
+        f.flush()
+        temp_file = f.name
+
+    try:
+        result = _check_pyproject_toml(temp_file)
+        assert result is False
+        captured = capsys.readouterr()
+        assert "EOL" not in captured.out
+    finally:
+        os.unlink(temp_file)
+
+
+def test_check_pyproject_toml_only_upper_bound():
+    """requires-python = "<4" has no lower bound — nothing to check."""
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False) as f:
+        f.write('[project]\nrequires-python = "<4"\n')
+        f.flush()
+        temp_file = f.name
+
+    try:
+        result = _check_pyproject_toml(temp_file)
+        assert result is False
+    finally:
+        os.unlink(temp_file)
+
+
+def test_min_required_version():
+    from py_eol.checker import _min_required_version
+
+    assert _min_required_version(">=3.7") == "3.7"
+    assert _min_required_version(">=3.7,<4") == "3.7"
+    assert _min_required_version(">=3.9,>=3.10") == "3.10"
+    assert _min_required_version("==3.11") == "3.11"
+    assert _min_required_version("~=3.10") == "3.10"
+    assert _min_required_version("<4") is None
+
+
+def test_check_pyproject_toml_warn_before(capsys, monkeypatch):
+    import py_eol.checker as checker
+
+    future_date = datetime.date.today() + datetime.timedelta(days=60)
+    monkeypatch.setitem(checker.EOL_DATES, "3.99", future_date)
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".toml", delete=False) as f:
+        f.write('[project]\nrequires-python = ">=3.99"\n')
+        f.flush()
+        temp_file = f.name
+    try:
+        result = _check_pyproject_toml(temp_file, warn_before_days=90)
+        assert result is True
+        captured = capsys.readouterr()
+        assert "⏰ Python 3.99 will be EOL on" in captured.out
+    finally:
+        os.unlink(temp_file)
+
+
 def test_check_setup_py_eol(capsys):
     with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
         f.write(
@@ -186,6 +330,38 @@ def test_check_setup_py_supported(capsys):
 def test_check_setup_py_no_python_requires():
     with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
         f.write('from setuptools import setup\nsetup(name="test")\n')
+        f.flush()
+        temp_file = f.name
+
+    try:
+        result = _check_setup_py(temp_file)
+        assert result is False
+    finally:
+        os.unlink(temp_file)
+
+
+def test_check_setup_py_compound_specifier_eol(capsys):
+    """python_requires=">=3.7,<4" should detect 3.7 as EOL."""
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
+        f.write(
+            'from setuptools import setup\nsetup(\n    python_requires=">=3.7,<4"\n)\n'
+        )
+        f.flush()
+        temp_file = f.name
+
+    try:
+        result = _check_setup_py(temp_file)
+        assert result is True
+        captured = capsys.readouterr()
+        assert "⚠️ Python 3.7 is already EOL" in captured.out
+    finally:
+        os.unlink(temp_file)
+
+
+def test_check_setup_py_only_upper_bound():
+    """python_requires="<4" has no lower bound — nothing to check."""
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
+        f.write('from setuptools import setup\nsetup(\n    python_requires="<4"\n)\n')
         f.flush()
         temp_file = f.name
 
@@ -334,5 +510,203 @@ jobs:
     try:
         result = _check_github_actions(temp_file)
         assert result is False
+    finally:
+        os.unlink(temp_file)
+
+
+def test_check_python_version_file_eol(capsys):
+    with tempfile.NamedTemporaryFile(mode="w", suffix="", delete=False) as f:
+        f.write("3.7.12\n")
+        f.flush()
+        temp_file = f.name
+
+    try:
+        result = _check_python_version_file(temp_file)
+        assert result is True
+        captured = capsys.readouterr()
+        assert "⚠️ Python 3.7 is already EOL" in captured.out
+    finally:
+        os.unlink(temp_file)
+
+
+def test_check_python_version_file_supported(capsys):
+    with tempfile.NamedTemporaryFile(mode="w", suffix="", delete=False) as f:
+        f.write("3.12.0\n")
+        f.flush()
+        temp_file = f.name
+
+    try:
+        result = _check_python_version_file(temp_file)
+        assert result is False
+        captured = capsys.readouterr()
+        assert "EOL" not in captured.out
+    finally:
+        os.unlink(temp_file)
+
+
+def test_check_python_version_file_short_version(capsys):
+    with tempfile.NamedTemporaryFile(mode="w", suffix="", delete=False) as f:
+        f.write("3.7\n")
+        f.flush()
+        temp_file = f.name
+
+    try:
+        result = _check_python_version_file(temp_file)
+        assert result is True
+        captured = capsys.readouterr()
+        assert "⚠️ Python 3.7 is already EOL" in captured.out
+    finally:
+        os.unlink(temp_file)
+
+
+def test_check_python_version_file_invalid():
+    with tempfile.NamedTemporaryFile(mode="w", suffix="", delete=False) as f:
+        f.write("system\n")
+        f.flush()
+        temp_file = f.name
+
+    try:
+        result = _check_python_version_file(temp_file)
+        assert result is False
+    finally:
+        os.unlink(temp_file)
+
+
+def test_check_python_version_file_warn_before(capsys, monkeypatch):
+    import py_eol.checker as checker
+
+    future_date = datetime.date.today() + datetime.timedelta(days=60)
+    monkeypatch.setitem(checker.EOL_DATES, "3.99", future_date)
+    with tempfile.NamedTemporaryFile(mode="w", suffix="", delete=False) as f:
+        f.write("3.99.0\n")
+        f.flush()
+        temp_file = f.name
+    try:
+        result = _check_python_version_file(temp_file, warn_before_days=90)
+        assert result is True
+        captured = capsys.readouterr()
+        assert "⏰ Python 3.99 will be EOL on" in captured.out
+    finally:
+        os.unlink(temp_file)
+
+
+def test_check_tox_ini_eol(capsys):
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".ini", delete=False) as f:
+        f.write("[tox]\nenvlist = py37,py312\n\n[testenv]\ncommands = pytest\n")
+        f.flush()
+        temp_file = f.name
+
+    try:
+        result = _check_tox_ini(temp_file)
+        assert result is True
+        captured = capsys.readouterr()
+        assert "⚠️ Python 3.7 is already EOL" in captured.out
+    finally:
+        os.unlink(temp_file)
+
+
+def test_check_tox_ini_supported(capsys):
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".ini", delete=False) as f:
+        f.write("[tox]\nenvlist = py312,py313\n\n[testenv]\ncommands = pytest\n")
+        f.flush()
+        temp_file = f.name
+
+    try:
+        result = _check_tox_ini(temp_file)
+        assert result is False
+        captured = capsys.readouterr()
+        assert "EOL" not in captured.out
+    finally:
+        os.unlink(temp_file)
+
+
+def test_check_tox_ini_no_envlist():
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".ini", delete=False) as f:
+        f.write("[testenv]\ncommands = pytest\n")
+        f.flush()
+        temp_file = f.name
+
+    try:
+        result = _check_tox_ini(temp_file)
+        assert result is False
+    finally:
+        os.unlink(temp_file)
+
+
+def test_check_dockerfile_eol(capsys):
+    with tempfile.NamedTemporaryFile(mode="w", suffix="", delete=False) as f:
+        f.write("FROM python:3.7-slim\nRUN pip install requests\n")
+        f.flush()
+        temp_file = f.name
+
+    try:
+        result = _check_dockerfile(temp_file)
+        assert result is True
+        captured = capsys.readouterr()
+        assert "⚠️ Python 3.7 is already EOL" in captured.out
+    finally:
+        os.unlink(temp_file)
+
+
+def test_check_dockerfile_supported(capsys):
+    with tempfile.NamedTemporaryFile(mode="w", suffix="", delete=False) as f:
+        f.write("FROM python:3.12-slim\nRUN pip install requests\n")
+        f.flush()
+        temp_file = f.name
+
+    try:
+        result = _check_dockerfile(temp_file)
+        assert result is False
+        captured = capsys.readouterr()
+        assert "EOL" not in captured.out
+    finally:
+        os.unlink(temp_file)
+
+
+def test_check_dockerfile_multi_stage(capsys):
+    with tempfile.NamedTemporaryFile(mode="w", suffix="", delete=False) as f:
+        f.write(
+            "FROM python:3.7-slim AS builder\nRUN pip install requests\n"
+            "FROM python:3.12-slim\nCOPY --from=builder /app /app\n"
+        )
+        f.flush()
+        temp_file = f.name
+
+    try:
+        result = _check_dockerfile(temp_file)
+        assert result is True
+        captured = capsys.readouterr()
+        assert "⚠️ Python 3.7 is already EOL" in captured.out
+    finally:
+        os.unlink(temp_file)
+
+
+def test_check_dockerfile_no_python():
+    with tempfile.NamedTemporaryFile(mode="w", suffix="", delete=False) as f:
+        f.write("FROM ubuntu:22.04\nRUN apt-get update\n")
+        f.flush()
+        temp_file = f.name
+
+    try:
+        result = _check_dockerfile(temp_file)
+        assert result is False
+    finally:
+        os.unlink(temp_file)
+
+
+def test_check_dockerfile_warn_before(capsys, monkeypatch):
+    import py_eol.checker as checker
+
+    future_date = datetime.date.today() + datetime.timedelta(days=60)
+    monkeypatch.setitem(checker.EOL_DATES, "3.99", future_date)
+    with tempfile.NamedTemporaryFile(mode="w", suffix="", delete=False) as f:
+        f.write("FROM python:3.99-slim\nRUN pip install requests\n")
+        f.flush()
+        temp_file = f.name
+    try:
+        result = _check_dockerfile(temp_file, warn_before_days=90)
+        assert result is True
+        captured = capsys.readouterr()
+        assert "⏰ Python 3.99 will be EOL on" in captured.out
     finally:
         os.unlink(temp_file)
