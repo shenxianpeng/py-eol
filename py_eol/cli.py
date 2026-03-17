@@ -33,9 +33,7 @@ def check_versions(versions, output_json=False, warn_before_days=0):
             days_until_eol = (eol_date - today).days
             eol = is_eol(version)
             soon = (
-                not eol
-                and warn_before_days > 0
-                and days_until_eol <= warn_before_days
+                not eol and warn_before_days > 0 and days_until_eol <= warn_before_days
             )
             if eol:
                 status = "EOL"
