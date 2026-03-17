@@ -97,6 +97,8 @@ def _check_version_status(
         elif warn_before_days > 0 and is_eol_soon(normalized_version, warn_before_days):
             _print_eol_soon_warning(normalized_version, file_path, line_num)
             return True
+        else:
+            _print_supported_warning(normalized_version, file_path, line_num)
     except ValueError:
         pass
     return False
@@ -248,7 +250,12 @@ def _print_eol_soon_warning(version: str, file_path: str = "", line_num: int = 0
     print(msg)
 
 
-def _print_supported_warning(version: str):
+def _print_supported_warning(version: str, file_path: str = "", line_num: int = 0):
     """Print a message if the given Python version is still supported."""
     eol_date = get_eol_date(version)
-    print(f"✅ Python {version} is still supported until {eol_date.isoformat()}")
+    msg = f"✅ Python {version} is still supported until {eol_date.isoformat()}"
+    if file_path and line_num:
+        msg = f"{file_path}:{line_num}: {msg}"
+    elif file_path:
+        msg = f"{file_path}: {msg}"
+    print(msg)
