@@ -25,14 +25,17 @@ from importlib.metadata import version as __version__
 def check_versions(versions, output_json=False, warn_before_days=0):
     results = []
 
+    today = date.today()
+
     for version in versions:
         try:
             eol_date = get_eol_date(version)
+            days_until_eol = (eol_date - today).days
             eol = is_eol(version)
             soon = (
                 not eol
                 and warn_before_days > 0
-                and is_eol_soon(version, warn_before_days)
+                and days_until_eol <= warn_before_days
             )
             if eol:
                 status = "EOL"
@@ -45,7 +48,7 @@ def check_versions(versions, output_json=False, warn_before_days=0):
                     "version": version,
                     "status": status,
                     "eol_date": eol_date.isoformat(),
-                    "days_until_eol": (eol_date - date.today()).days,
+                    "days_until_eol": days_until_eol,
                 }
             )
         except ValueError as e:
