@@ -6,7 +6,6 @@ from datetime import date
 from py_eol.checker import (
     is_eol,
     get_eol_date,
-    is_eol_soon,
     supported_versions,
     _check_pyproject_toml,
     _check_setup_py,
