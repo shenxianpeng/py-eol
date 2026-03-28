@@ -7,7 +7,7 @@ def test_sync_data_success(monkeypatch):
     monkeypatch.setattr(
         sync_data_mod,
         "fetch_py_eol_data",
-        lambda: [{"cycle": "3.99", "eol": "2099-01-01"}],
+        lambda: {"3.99": {"end_of_life": "2099-01-01", "status": "end-of-life"}},
     )
     monkeypatch.setattr(
         sync_data_mod, "generate_eol_data_content", lambda data: "test content"
@@ -28,7 +28,7 @@ def test_sync_data_file_write_failure(monkeypatch):
     monkeypatch.setattr(
         sync_data_mod,
         "fetch_py_eol_data",
-        lambda: [{"cycle": "3.99", "eol": "2099-01-01"}],
+        lambda: {"3.99": {"end_of_life": "2099-01-01", "status": "end-of-life"}},
     )
     monkeypatch.setattr(
         sync_data_mod, "generate_eol_data_content", lambda data: "test content"
@@ -47,12 +47,12 @@ def test_fetch_py_eol_data_success(monkeypatch):
             pass
 
         def json(self):
-            return [{"cycle": "3.99", "eol": "2099-01-01"}]
+            return {"3.99": {"end_of_life": "2099-01-01", "status": "end-of-life"}}
 
     monkeypatch.setattr(sync_data_mod.requests, "get", lambda url: MockResponse())
     result = sync_data_mod.fetch_py_eol_data()
-    assert isinstance(result, list)
-    assert result[0]["cycle"] == "3.99"
+    assert isinstance(result, dict)
+    assert "3.99" in result
 
 
 def test_fetch_py_eol_data_http_error(monkeypatch):
@@ -66,19 +66,27 @@ def test_fetch_py_eol_data_http_error(monkeypatch):
 
 
 def test_generate_eol_data_content_valid():
-    data = [{"cycle": "3.99", "eol": "2099-01-01"}]
+    data = {"3.99": {"end_of_life": "2099-01-01", "status": "end-of-life"}}
     content = sync_data_mod.generate_eol_data_content(data)
     assert "3.99" in content
     assert "datetime.date(2099, 1, 1)" in content
 
 
+def test_generate_eol_data_content_year_month_only():
+    # end_of_life with year-month only should use last day of that month
+    data = {"3.12": {"end_of_life": "2028-10", "status": "security"}}
+    content = sync_data_mod.generate_eol_data_content(data)
+    assert "3.12" in content
+    assert "datetime.date(2028, 10, 31)" in content
+
+
 def test_generate_eol_data_content_invalid_and_missing():
-    # Should skip invalid date and missing eol
-    data = [
-        {"cycle": "bad", "eol": "not-a-date"},
-        {"cycle": "skip", "eol": None},
-        {"cycle": "ok", "eol": "2099-12-31"},
-    ]
+    # Should skip invalid date and missing end_of_life
+    data = {
+        "bad": {"end_of_life": "not-a-date", "status": "end-of-life"},
+        "skip": {"end_of_life": None, "status": "end-of-life"},
+        "ok": {"end_of_life": "2099-12-31", "status": "end-of-life"},
+    }
     content = sync_data_mod.generate_eol_data_content(data)
     assert "ok" in content
     assert "skip" not in content
