@@ -64,7 +64,7 @@ positional arguments:
     files               Check files for Python versions
     list                List all supported Python versions
     check-self          Check the current Python interpreter version
-    refresh             Refresh the EOL data from endoflife.date
+    refresh             Refresh the EOL data from peps.python.org
 
 options:
   -h, --help            show this help message and exit
@@ -97,7 +97,7 @@ py-eol list
 # Output result in JSON format (includes days_until_eol field)
 py-eol versions 3.8 3.9 --json
 
-# Refresh the latest EOL data from endoflife.date
+# Refresh the latest EOL data from peps.python.org
 py-eol refresh
 ```
 
