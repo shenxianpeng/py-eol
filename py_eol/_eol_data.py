@@ -1,6 +1,8 @@
 import datetime
 
 EOL_DATES = {
+    "3.16": datetime.date(2032, 10, 31),
+    "3.15": datetime.date(2031, 10, 31),
     "3.14": datetime.date(2030, 10, 31),
     "3.13": datetime.date(2029, 10, 31),
     "3.12": datetime.date(2028, 10, 31),
