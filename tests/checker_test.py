@@ -10,6 +10,9 @@ from py_eol import (
     supported_versions,
     eol_versions,
     latest_supported_version,
+    all_versions,
+    get_release_date,
+    get_version_info,
 )
 from py_eol.checker import (
     _check_pyproject_toml,
@@ -92,6 +95,76 @@ def test_latest_supported_version_no_supported(monkeypatch):
             checker.latest_supported_version()
     finally:
         monkeypatch.setattr(checker, "EOL_DATES", old_eol_dates)
+
+
+def test_all_versions_returns_all():
+    versions = all_versions()
+    assert isinstance(versions, list)
+    assert len(versions) > 0
+    assert all(isinstance(v, str) for v in versions)
+    # Should contain both supported and EOL versions
+    assert "3.12" in versions
+    assert "2.7" in versions
+
+
+def test_all_versions_sorted_newest_first():
+    versions = all_versions()
+    # First entry should be newer than last entry
+    first = tuple(map(int, versions[0].split(".")))
+    last = tuple(map(int, versions[-1].split(".")))
+    assert first > last
+
+
+def test_all_versions_includes_eol():
+    versions = all_versions()
+    eol = eol_versions()
+    for v in eol:
+        assert v in versions
+
+
+def test_get_release_date_known_version():
+    date = get_release_date("3.12")
+    assert isinstance(date, datetime.date)
+    assert date == datetime.date(2023, 10, 2)
+
+
+def test_get_release_date_eol_version():
+    date = get_release_date("2.7")
+    assert isinstance(date, datetime.date)
+    assert date == datetime.date(2010, 7, 3)
+
+
+def test_get_release_date_unknown_version():
+    with pytest.raises(ValueError, match="Unknown Python version"):
+        get_release_date("4.0")
+
+
+def test_get_version_info_supported():
+    info = get_version_info("3.12")
+    assert info["version"] == "3.12"
+    assert isinstance(info["release_date"], datetime.date)
+    assert isinstance(info["eol_date"], datetime.date)
+    assert isinstance(info["is_eol"], bool)
+    assert isinstance(info["days_until_eol"], int)
+    assert info["is_eol"] is False
+    assert info["days_until_eol"] > 0
+
+
+def test_get_version_info_eol():
+    info = get_version_info("2.7")
+    assert info["version"] == "2.7"
+    assert info["is_eol"] is True
+    assert info["days_until_eol"] < 0
+
+
+def test_get_version_info_unknown():
+    with pytest.raises(ValueError, match="Unknown Python version"):
+        get_version_info("4.0")
+
+
+def test_get_version_info_release_before_eol():
+    info = get_version_info("3.11")
+    assert info["release_date"] < info["eol_date"]
 
 
 def test_find_line_in_file():

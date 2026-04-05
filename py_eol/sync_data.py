@@ -14,29 +14,53 @@ def fetch_py_eol_data():
     return response.json()
 
 
+def _parse_date(date_str: str) -> datetime.date:
+    """Parse a date string that is either YYYY-MM-DD or YYYY-MM (last day of month)."""
+    try:
+        return datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
+    except ValueError:
+        dt = datetime.datetime.strptime(date_str, "%Y-%m")
+        last_day = calendar.monthrange(dt.year, dt.month)[1]
+        return datetime.date(dt.year, dt.month, last_day)
+
+
 def generate_eol_data_content(data):
     """Generate the content for _eol_data.py."""
-    lines = ["import datetime", "", "EOL_DATES = {"]
+    lines = ["import datetime", "", "PYTHON_VERSIONS = {"]
     for version, entry in data.items():
         eol_date_str = entry.get("end_of_life")
         if not eol_date_str:
-            continue  # skip if no EOL date
+            continue
 
         try:
-            eol_date = datetime.datetime.strptime(eol_date_str, "%Y-%m-%d").date()
+            eol_date = _parse_date(eol_date_str)
         except ValueError:
-            try:
-                # Handle year-month only format (e.g. "2028-10") by using last day of month
-                dt = datetime.datetime.strptime(eol_date_str, "%Y-%m")
-                last_day = calendar.monthrange(dt.year, dt.month)[1]
-                eol_date = datetime.date(dt.year, dt.month, last_day)
-            except ValueError:
-                continue  # skip invalid date formats
+            continue
 
-        line = f'    "{version}": datetime.date({eol_date.year}, {eol_date.month}, {eol_date.day}),'
-        lines.append(line)
+        release_date_str = entry.get("release")
+        release_date_line = ""
+        if release_date_str:
+            try:
+                release_date = _parse_date(release_date_str)
+                release_date_line = (
+                    f'        "release_date": datetime.date'
+                    f"({release_date.year}, {release_date.month}, {release_date.day}),"
+                )
+            except ValueError:
+                pass
+
+        lines.append(f'    "{version}": {{')
+        if release_date_line:
+            lines.append(release_date_line)
+        lines.append(
+            f'        "eol_date": datetime.date'
+            f"({eol_date.year}, {eol_date.month}, {eol_date.day}),"
+        )
+        lines.append("    },")
 
     lines.append("}")
+    lines.append("")
+    lines.append("EOL_DATES = {k: v[\"eol_date\"] for k, v in PYTHON_VERSIONS.items()}")
     lines.append("")
     return "\n".join(lines)
 

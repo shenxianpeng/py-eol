@@ -49,7 +49,7 @@ def test_main_list(monkeypatch, capsys):
     monkeypatch.setattr(
         cli_mod,
         "list_supported_versions",
-        lambda output_json=False: (_ for _ in ()).throw(SystemExit(0)),
+        lambda output_json=False, show_all=False: (_ for _ in ()).throw(SystemExit(0)),
     )
     with pytest.raises(SystemExit) as e:
         cli_mod.main()
@@ -334,3 +334,150 @@ def test_main_versions_warn_before(monkeypatch, capsys):
     with pytest.raises(SystemExit):
         cli_mod.main()
     assert captured_args["warn_before_days"] == 180
+
+
+def test_show_version_info_supported(monkeypatch, capsys):
+    import datetime
+
+    monkeypatch.setattr(
+        cli_mod,
+        "get_version_info",
+        lambda v: {
+            "version": v,
+            "release_date": datetime.date(2023, 10, 2),
+            "eol_date": datetime.date(2028, 10, 31),
+            "is_eol": False,
+            "days_until_eol": 900,
+        },
+    )
+    with pytest.raises(SystemExit) as e:
+        cli_mod.show_version_info("3.12")
+    out = capsys.readouterr().out
+    assert "Python 3.12" in out
+    assert "2023-10-02" in out
+    assert "2028-10-31" in out
+    assert "Supported" in out
+    assert e.value.code == 0
+
+
+def test_show_version_info_eol(monkeypatch, capsys):
+    import datetime
+
+    monkeypatch.setattr(
+        cli_mod,
+        "get_version_info",
+        lambda v: {
+            "version": v,
+            "release_date": datetime.date(2018, 6, 27),
+            "eol_date": datetime.date(2023, 6, 27),
+            "is_eol": True,
+            "days_until_eol": -700,
+        },
+    )
+    with pytest.raises(SystemExit) as e:
+        cli_mod.show_version_info("3.7")
+    out = capsys.readouterr().out
+    assert "Python 3.7" in out
+    assert "EOL" in out
+    assert e.value.code == 0
+
+
+def test_show_version_info_unknown(monkeypatch, capsys):
+    def raise_ve(v):
+        raise ValueError(f"Unknown Python version: {v}")
+
+    monkeypatch.setattr(cli_mod, "get_version_info", raise_ve)
+    with pytest.raises(SystemExit) as e:
+        cli_mod.show_version_info("9.9")
+    out = capsys.readouterr().out
+    assert "Unknown" in out or "9.9" in out
+    assert e.value.code == 2
+
+
+def test_show_version_info_json(monkeypatch, capsys):
+    import datetime
+    import json
+
+    monkeypatch.setattr(
+        cli_mod,
+        "get_version_info",
+        lambda v: {
+            "version": v,
+            "release_date": datetime.date(2023, 10, 2),
+            "eol_date": datetime.date(2028, 10, 31),
+            "is_eol": False,
+            "days_until_eol": 900,
+        },
+    )
+    with pytest.raises(SystemExit) as e:
+        cli_mod.show_version_info("3.12", output_json=True)
+    out = capsys.readouterr().out
+    data = json.loads(out)
+    assert data["version"] == "3.12"
+    assert "release_date" in data
+    assert "eol_date" in data
+    assert "is_eol" in data
+    assert "days_until_eol" in data
+    assert e.value.code == 0
+
+
+def test_main_info(monkeypatch, capsys):
+    monkeypatch.setattr(sys, "argv", ["py-eol", "info", "3.12"])
+    monkeypatch.setattr(
+        cli_mod,
+        "show_version_info",
+        lambda version, output_json=False: (_ for _ in ()).throw(SystemExit(0)),
+    )
+    with pytest.raises(SystemExit) as e:
+        cli_mod.main()
+    assert e.value.code == 0
+
+
+def test_list_all_versions(monkeypatch, capsys):
+    monkeypatch.setattr(cli_mod, "all_versions", lambda: ["3.12", "3.7", "2.7"])
+    monkeypatch.setattr(
+        cli_mod,
+        "get_version_info",
+        lambda v: {
+            "version": v,
+            "release_date": __import__("datetime").date(2020, 1, 1),
+            "eol_date": __import__("datetime").date(2025, 1, 1),
+            "is_eol": False,
+            "days_until_eol": 100,
+        },
+    )
+    with pytest.raises(SystemExit) as e:
+        cli_mod.list_supported_versions(show_all=True)
+    out = capsys.readouterr().out
+    assert "All Python versions" in out
+    assert "3.12" in out
+    assert "2.7" in out
+    assert e.value.code == 0
+
+
+def test_list_supported_versions_json_rich(monkeypatch, capsys):
+    import json
+    import datetime
+
+    monkeypatch.setattr(cli_mod, "supported_versions", lambda: ["3.12"])
+    monkeypatch.setattr(
+        cli_mod,
+        "get_version_info",
+        lambda v: {
+            "version": v,
+            "release_date": datetime.date(2023, 10, 2),
+            "eol_date": datetime.date(2028, 10, 31),
+            "is_eol": False,
+            "days_until_eol": 900,
+        },
+    )
+    with pytest.raises(SystemExit):
+        cli_mod.list_supported_versions(output_json=True)
+    out = capsys.readouterr().out
+    data = json.loads(out)
+    assert isinstance(data, list)
+    assert data[0]["version"] == "3.12"
+    assert "release_date" in data[0]
+    assert "eol_date" in data[0]
+    assert "is_eol" in data[0]
+

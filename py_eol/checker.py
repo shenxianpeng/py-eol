@@ -2,7 +2,7 @@ import datetime
 import re
 from typing import Optional
 import yaml
-from py_eol._eol_data import EOL_DATES
+from py_eol._eol_data import EOL_DATES, PYTHON_VERSIONS
 from packaging.specifiers import SpecifierSet
 from packaging.version import Version
 
@@ -54,6 +54,50 @@ def latest_supported_version() -> str:
     if not versions:
         raise RuntimeError("No supported Python versions found.")
     return max(versions, key=lambda v: tuple(map(int, v.split("."))))
+
+
+def all_versions() -> list[str]:
+    """Return all known Python versions sorted newest-first."""
+    return sorted(
+        PYTHON_VERSIONS.keys(),
+        key=lambda v: tuple(map(int, v.split("."))),
+        reverse=True,
+    )
+
+
+def get_release_date(version: str) -> datetime.date:
+    """Get the initial release date for a given Python version."""
+    entry = PYTHON_VERSIONS.get(version)
+    if not entry:
+        raise ValueError(f"Unknown Python version: {version}")
+    return entry["release_date"]
+
+
+def get_version_info(version: str) -> dict:
+    """Return a structured lifecycle summary for a given Python version.
+
+    The returned dict mirrors the endoflife.date API shape::
+
+        {
+            "version":        str,
+            "release_date":   datetime.date,
+            "eol_date":       datetime.date,
+            "is_eol":         bool,
+            "days_until_eol": int,   # negative when already EOL
+        }
+    """
+    entry = PYTHON_VERSIONS.get(version)
+    if not entry:
+        raise ValueError(f"Unknown Python version: {version}")
+    today = datetime.date.today()
+    eol_date = entry["eol_date"]
+    return {
+        "version": version,
+        "release_date": entry["release_date"],
+        "eol_date": eol_date,
+        "is_eol": today > eol_date,
+        "days_until_eol": (eol_date - today).days,
+    }
 
 
 def _min_required_version(specifier_str: str) -> Optional[str]:

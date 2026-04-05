@@ -6,6 +6,9 @@ from .checker import (
     supported_versions,
     eol_versions,
     latest_supported_version,
+    all_versions,
+    get_release_date,
+    get_version_info,
 )
 
 __all__ = [
@@ -16,4 +19,7 @@ __all__ = [
     "supported_versions",
     "eol_versions",
     "latest_supported_version",
+    "all_versions",
+    "get_release_date",
+    "get_version_info",
 ]

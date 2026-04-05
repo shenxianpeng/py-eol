@@ -106,3 +106,30 @@ def test_save_eol_data(tmp_path, capsys):
         assert "Updated" in out
     finally:
         sync_data_mod.OUTPUT_FILE = orig_file
+
+
+def test_generate_eol_data_content_with_release_date():
+    data = {"3.99": {"release": "2023-10-02", "end_of_life": "2028-10-31"}}
+    content = sync_data_mod.generate_eol_data_content(data)
+    assert "3.99" in content
+    assert "release_date" in content
+    assert "datetime.date(2023, 10, 2)" in content
+    assert "eol_date" in content
+    assert "datetime.date(2028, 10, 31)" in content
+
+
+def test_generate_eol_data_content_missing_release_date():
+    # release_date is optional; entry should still be generated with just eol_date
+    data = {"3.99": {"end_of_life": "2099-01-01"}}
+    content = sync_data_mod.generate_eol_data_content(data)
+    assert "3.99" in content
+    assert "eol_date" in content
+    assert "datetime.date(2099, 1, 1)" in content
+
+
+def test_generate_eol_data_content_generates_eol_dates_alias():
+    data = {"3.99": {"end_of_life": "2099-01-01"}}
+    content = sync_data_mod.generate_eol_data_content(data)
+    assert "EOL_DATES" in content
+    assert "PYTHON_VERSIONS" in content
+
