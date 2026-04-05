@@ -60,7 +60,7 @@ def generate_eol_data_content(data):
 
     lines.append("}")
     lines.append("")
-    lines.append("EOL_DATES = {k: v[\"eol_date\"] for k, v in PYTHON_VERSIONS.items()}")
+    lines.append('EOL_DATES = {k: v["eol_date"] for k, v in PYTHON_VERSIONS.items()}')
     lines.append("")
     return "\n".join(lines)
 

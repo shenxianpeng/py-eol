@@ -480,4 +480,3 @@ def test_list_supported_versions_json_rich(monkeypatch, capsys):
     assert "release_date" in data[0]
     assert "eol_date" in data[0]
     assert "is_eol" in data[0]
-

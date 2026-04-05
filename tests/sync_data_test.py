@@ -132,4 +132,3 @@ def test_generate_eol_data_content_generates_eol_dates_alias():
     content = sync_data_mod.generate_eol_data_content(data)
     assert "EOL_DATES" in content
     assert "PYTHON_VERSIONS" in content
-

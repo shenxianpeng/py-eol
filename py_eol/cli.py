@@ -106,7 +106,7 @@ def list_supported_versions(output_json=False, show_all=False):
         title = "All Python versions" if show_all else "Supported Python versions"
         print(f"{title}:")
         print(f"  {'Version':<10}{'Release Date':<15}{'EOL Date':<13}{'Status'}")
-        print(f"  {'-'*7:<10}{'-'*12:<15}{'-'*10:<13}{'-'*9}")
+        print(f"  {'-' * 7:<10}{'-' * 12:<15}{'-' * 10:<13}{'-' * 9}")
         for v in versions:
             try:
                 info = get_version_info(v)
