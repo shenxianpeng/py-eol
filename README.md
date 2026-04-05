@@ -4,7 +4,7 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/py-eol)](https://pypi.org/project/py-eol/)
 [![codecov](https://codecov.io/gh/shenxianpeng/py-eol/graph/badge.svg?token=7B23E012SN)](https://codecov.io/gh/shenxianpeng/py-eol)
 
-The authoritative Python version lifecycle tool — know exactly when every Python release was born, when it dies, and how much time is left.
+Track Python release and end-of-life timelines — know exactly how long your versions are supported.
 
 ## Table of Contents
 
