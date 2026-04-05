@@ -4,7 +4,7 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/py-eol)](https://pypi.org/project/py-eol/)
 [![codecov](https://codecov.io/gh/shenxianpeng/py-eol/graph/badge.svg?token=7B23E012SN)](https://codecov.io/gh/shenxianpeng/py-eol)
 
-Check if a Python version is **End-Of-Life (EOL)**.
+Track Python release and end-of-life timelines — know exactly how long your versions are supported.
 
 ## Table of Contents
 
@@ -19,6 +19,7 @@ Check if a Python version is **End-Of-Life (EOL)**.
 
 ## Why py-eol?
 
+* **Full lifecycle data** – release date *and* EOL date for every Python version, just like [endoflife.date](https://endoflife.date/python)
 * Programmatically check if a Python version is supported or EOL
 * Works as a Python module, CLI tool, GitHub Action, and pre-commit hook
 * Detects Python versions in `pyproject.toml`, `setup.py`, `.python-version`, `tox.ini`, `Dockerfile`, and GitHub Actions workflow files
@@ -36,33 +37,51 @@ pip install py-eol
 ### As a Python module
 
 ```python
-from py_eol import is_eol, get_eol_date, days_until_eol, is_eol_soon
-from py_eol import supported_versions, eol_versions, latest_supported_version
+from py_eol import (
+    is_eol, get_eol_date, days_until_eol, is_eol_soon,
+    supported_versions, eol_versions, latest_supported_version,
+    # New lifecycle API
+    get_release_date, get_version_info, all_versions,
+)
 
 print(is_eol("3.7"))                    # True
 print(is_eol("3.12"))                   # False
 print(get_eol_date("3.8"))              # 2024-10-07
 print(days_until_eol("3.12"))           # e.g. 960 (days remaining)
 print(is_eol_soon("3.10", 365))         # True if EOL within 365 days
-print(supported_versions())             # ['3.14', '3.13', '3.12', '3.11', '3.10']
+print(supported_versions())             # ['3.16', '3.15', '3.14', '3.13', '3.12', '3.11', '3.10']
 print(eol_versions())                   # ['3.9', '3.8', '3.7', ...]
-print(latest_supported_version())       # 3.14
+print(latest_supported_version())       # 3.16
+
+# Full lifecycle info (like endoflife.date)
+print(get_release_date("3.12"))         # 2023-10-02
+print(all_versions())                   # all known versions, newest first
+
+info = get_version_info("3.12")
+# {
+#   "version":        "3.12",
+#   "release_date":   datetime.date(2023, 10, 2),
+#   "eol_date":       datetime.date(2028, 10, 31),
+#   "is_eol":         False,
+#   "days_until_eol": 940,
+# }
 ```
 
 ### As a CLI tool
 
 ```
 py-eol --help
-usage: py-eol [-h] [--version] {versions,files,list,check-self,refresh} ...
+usage: py-eol [-h] [--version] {versions,files,list,info,check-self,refresh} ...
 
 Check if a Python version is EOL (End Of Life).
 
 positional arguments:
-  {versions,files,list,check-self,refresh}
+  {versions,files,list,info,check-self,refresh}
                         sub-command help
     versions            Check specific Python versions
     files               Check files for Python versions
-    list                List all supported Python versions
+    list                List Python versions and their lifecycle status
+    info                Show full lifecycle info for a Python version
     check-self          Check the current Python interpreter version
     refresh             Refresh the EOL data from peps.python.org
 
@@ -88,14 +107,23 @@ py-eol files pyproject.toml setup.py .python-version tox.ini Dockerfile .github/
 # Also warn about versions expiring within 90 days
 py-eol files pyproject.toml Dockerfile --warn-before 90
 
-# Check current Python interpreter
-py-eol check-self
+# Show full lifecycle info for a specific version (like endoflife.date)
+py-eol info 3.12
+py-eol info 3.7
+py-eol info 3.12 --json
 
-# List all currently supported versions
+# List currently supported versions with release and EOL dates
 py-eol list
 
-# Output result in JSON format (includes days_until_eol field)
+# List ALL versions (supported + EOL) — the full Python lifecycle history
+py-eol list --all
+
+# Output result in JSON format (includes release_date, eol_date, days_until_eol)
+py-eol list --json
 py-eol versions 3.8 3.9 --json
+
+# Check current Python interpreter
+py-eol check-self
 
 # Refresh the latest EOL data from peps.python.org
 py-eol refresh
@@ -112,6 +140,45 @@ py-eol refresh
 **Example output**
 
 ```
+# py-eol info 3.12
+Python 3.12
+  Release Date:   2023-10-02
+  EOL Date:       2028-10-31
+  Days Until EOL: 940 days remaining
+  Status:         Supported
+
+# py-eol info 3.7
+Python 3.7
+  Release Date:   2018-06-27
+  EOL Date:       2023-06-27
+  Days Until EOL: 1013 days ago
+  Status:         EOL
+
+# py-eol list --all
+All Python versions:
+  Version   Release Date   EOL Date     Status
+  -------   ------------   ----------   ---------
+  3.16      2026-10-01     2032-10-31   Supported
+  3.15      2025-10-01     2031-10-31   Supported
+  3.14      2025-10-01     2030-10-31   Supported
+  3.13      2024-10-07     2029-10-31   Supported
+  3.12      2023-10-02     2028-10-31   Supported
+  3.11      2022-10-24     2027-10-31   Supported
+  3.10      2021-10-04     2026-10-31   Supported
+  3.9       2020-10-05     2025-10-31   EOL
+  3.8       2019-10-14     2024-10-07   EOL
+  3.7       2018-06-27     2023-06-27   EOL
+  ...
+
+# py-eol info 3.12 --json
+{
+  "version": "3.12",
+  "release_date": "2023-10-02",
+  "eol_date": "2028-10-31",
+  "is_eol": false,
+  "days_until_eol": 940
+}
+
 # Already EOL
 ⚠️ Python 3.9 is already EOL since 2025-10-31
 
