@@ -10,7 +10,7 @@ def test_sync_data_success(monkeypatch):
         lambda: {"3.99": {"end_of_life": "2099-01-01", "status": "end-of-life"}},
     )
     monkeypatch.setattr(
-        sync_data_mod, "generate_eol_data_content", lambda data: "test content"
+        sync_data_mod, "generate_eol_data_content", lambda data, existing_release_dates=None: "test content"
     )
     monkeypatch.setattr(sync_data_mod, "save_eol_data", lambda content: None)
     assert sync_data_mod.sync_data() is True
@@ -125,6 +125,27 @@ def test_generate_eol_data_content_missing_release_date():
     assert "3.99" in content
     assert "eol_date" in content
     assert "datetime.date(2099, 1, 1)" in content
+
+
+def test_generate_eol_data_content_fallback_release_date():
+    # When API has no release date, the existing release date should be preserved
+    import datetime
+    existing = {"3.99": datetime.date(2023, 6, 15)}
+    data = {"3.99": {"end_of_life": "2099-01-01"}}
+    content = sync_data_mod.generate_eol_data_content(data, existing)
+    assert "release_date" in content
+    assert "datetime.date(2023, 6, 15)" in content
+    assert "eol_date" in content
+
+
+def test_generate_eol_data_content_api_release_date_takes_precedence():
+    # API-provided release date should take precedence over existing one
+    import datetime
+    existing = {"3.99": datetime.date(2023, 6, 15)}
+    data = {"3.99": {"release": "2023-10-02", "end_of_life": "2028-10-31"}}
+    content = sync_data_mod.generate_eol_data_content(data, existing)
+    assert "datetime.date(2023, 10, 2)" in content
+    assert "datetime.date(2023, 6, 15)" not in content
 
 
 def test_generate_eol_data_content_generates_eol_dates_alias():
