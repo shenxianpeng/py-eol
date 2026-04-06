@@ -11,6 +11,7 @@ def _load_existing_release_dates() -> dict:
     """Load existing release dates from _eol_data.py as a fallback."""
     try:
         from py_eol._eol_data import PYTHON_VERSIONS
+
         return {
             version: info["release_date"]
             for version, info in PYTHON_VERSIONS.items()
