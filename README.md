@@ -1,10 +1,18 @@
-# py-eol
+<div align="center">
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/banner-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="docs/banner-light.svg">
+  <img src="docs/banner-light.svg" alt="py-eol — Track Python release and end-of-life timelines" width="100%" />
+</picture>
 
 [![main](https://github.com/shenxianpeng/py-eol/actions/workflows/ci.yml/badge.svg)](https://github.com/shenxianpeng/py-eol/actions/workflows/ci.yml)
 [![PyPI - Version](https://img.shields.io/pypi/v/py-eol)](https://pypi.org/project/py-eol/)
 [![codecov](https://codecov.io/gh/shenxianpeng/py-eol/graph/badge.svg?token=7B23E012SN)](https://codecov.io/gh/shenxianpeng/py-eol)
 
 Track Python release and end-of-life timelines — know exactly how long your versions are supported.
+
+</div>
 
 ## Table of Contents
 

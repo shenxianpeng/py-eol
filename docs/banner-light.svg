@@ -1,0 +1,115 @@
+<svg width="1280" height="320" viewBox="0 0 1280 320" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="py-eol — Track Python release and end-of-life timelines">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F0F4F9"/>
+    </linearGradient>
+    <linearGradient id="rule" x1="80" y1="0" x2="310" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0969DA"/>
+      <stop offset="1" stop-color="#D4A72C"/>
+    </linearGradient>
+    <radialGradient id="glowBlue" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#0969DA" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#0969DA" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowYellow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#D4A72C" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#D4A72C" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="frame">
+      <rect width="1280" height="320" rx="16"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#frame)">
+    <!-- background -->
+    <rect width="1280" height="320" fill="url(#bg)"/>
+    <circle cx="1120" cy="20" r="320" fill="url(#glowBlue)"/>
+    <circle cx="180" cy="330" r="300" fill="url(#glowYellow)"/>
+
+    <!-- ============ left: wordmark ============ -->
+    <text x="80" y="96" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" letter-spacing="3.5" fill="#0969DA">PYTHON VERSION LIFECYCLE TRACKER</text>
+
+    <text x="80" y="158" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace" font-size="64" font-weight="700"><tspan fill="#0969DA">py</tspan><tspan fill="#1F2328">-eol</tspan></text>
+    <rect x="322" y="108" width="15" height="50" rx="3" fill="#FFD43B"/>
+    <rect x="80" y="176" width="230" height="3" rx="1.5" fill="url(#rule)"/>
+
+    <text x="80" y="214" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" fill="#57606A">Track Python release and end-of-life timelines —</text>
+    <text x="80" y="238" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" fill="#57606A">know exactly how long your versions are supported.</text>
+
+    <!-- chips -->
+    <g font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="500">
+      <rect x="80" y="258" width="50" height="26" rx="13" fill="#0969DA" fill-opacity="0.04" stroke="#1B1F24" stroke-opacity="0.18"/>
+      <text x="105" y="275" text-anchor="middle" fill="#24292F">CLI</text>
+      <rect x="142" y="258" width="90" height="26" rx="13" fill="#0969DA" fill-opacity="0.04" stroke="#1B1F24" stroke-opacity="0.18"/>
+      <text x="187" y="275" text-anchor="middle" fill="#24292F">Python API</text>
+      <rect x="244" y="258" width="108" height="26" rx="13" fill="#0969DA" fill-opacity="0.04" stroke="#1B1F24" stroke-opacity="0.18"/>
+      <text x="298" y="275" text-anchor="middle" fill="#24292F">GitHub Action</text>
+      <rect x="364" y="258" width="94" height="26" rx="13" fill="#0969DA" fill-opacity="0.04" stroke="#1B1F24" stroke-opacity="0.18"/>
+      <text x="411" y="275" text-anchor="middle" fill="#24292F">pre-commit</text>
+    </g>
+
+    <!-- ============ right: lifecycle timeline card ============ -->
+    <rect x="690" y="44" width="530" height="232" rx="14" fill="#FFFFFF" stroke="#D0D7DE"/>
+    <text x="714" y="76" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace" font-size="13"><tspan fill="#9A6700">$</tspan><tspan fill="#424A53" dx="8">py-eol list --all</tspan></text>
+
+    <!-- year gridlines + ticks -->
+    <g stroke="#1B1F24" stroke-opacity="0.07">
+      <line x1="790.5" y1="94" x2="790.5" y2="228"/>
+      <line x1="872.5" y1="94" x2="872.5" y2="228"/>
+      <line x1="954.5" y1="94" x2="954.5" y2="228"/>
+      <line x1="1036.5" y1="94" x2="1036.5" y2="228"/>
+      <line x1="1118.5" y1="94" x2="1118.5" y2="228"/>
+    </g>
+    <g font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="9" fill="#6E7781" text-anchor="middle">
+      <text x="790.5" y="242">2020</text>
+      <text x="872.5" y="242">2022</text>
+      <text x="954.5" y="242">2024</text>
+      <text x="1036.5" y="242">2026</text>
+      <text x="1118.5" y="242">2028</text>
+    </g>
+
+    <!-- version labels -->
+    <g font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="13" fill="#24292F" text-anchor="end">
+      <text x="758" y="108">3.13</text>
+      <text x="758" y="136">3.12</text>
+      <text x="758" y="164">3.11</text>
+      <text x="758" y="192">3.10</text>
+      <text x="758" y="220">3.9</text>
+    </g>
+
+    <!-- bars: faint = remaining lifetime, solid = elapsed -->
+    <!-- 3.13 supported -->
+    <rect x="986" y="99" width="207" height="10" rx="5" fill="#1A7F37" opacity="0.25"/>
+    <rect x="986" y="99" width="80" height="10" rx="5" fill="#1A7F37"/>
+    <!-- 3.12 supported -->
+    <rect x="944" y="127" width="208" height="10" rx="5" fill="#1A7F37" opacity="0.25"/>
+    <rect x="944" y="127" width="122" height="10" rx="5" fill="#1A7F37"/>
+    <!-- 3.11 supported -->
+    <rect x="906" y="155" width="205" height="10" rx="5" fill="#1A7F37" opacity="0.25"/>
+    <rect x="906" y="155" width="160" height="10" rx="5" fill="#1A7F37"/>
+    <!-- 3.10 EOL soon -->
+    <rect x="862" y="183" width="208" height="10" rx="5" fill="#BF8700" opacity="0.25"/>
+    <rect x="862" y="183" width="204" height="10" rx="5" fill="#BF8700"/>
+    <!-- 3.9 EOL -->
+    <rect x="822" y="211" width="208" height="10" rx="5" fill="#CF222E" opacity="0.5"/>
+
+    <!-- today marker -->
+    <line x1="1061" y1="92" x2="1061" y2="228" stroke="#0969DA" stroke-opacity="0.75" stroke-width="1.5" stroke-dasharray="3 4"/>
+    <text x="1061" y="88" text-anchor="middle" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="600" fill="#0969DA">today</text>
+
+    <!-- legend -->
+    <g font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11">
+      <circle cx="734" cy="259" r="4" fill="#1A7F37"/>
+      <text x="744" y="263" fill="#57606A">Supported</text>
+      <circle cx="826" cy="259" r="4" fill="#BF8700"/>
+      <text x="836" y="263" fill="#57606A">EOL soon</text>
+      <circle cx="912" cy="259" r="4" fill="#CF222E"/>
+      <text x="922" y="263" fill="#57606A">EOL</text>
+      <text x="1196" y="263" text-anchor="end" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" fill="#6E7781">pip install py-eol</text>
+    </g>
+
+    <!-- frame border -->
+    <rect x="0.5" y="0.5" width="1279" height="319" rx="15.5" stroke="#D0D7DE"/>
+  </g>
+</svg>
