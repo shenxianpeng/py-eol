@@ -1,0 +1,21 @@
+py_eol/sync_data.py
+  s_66212c309e21f0::t_8d0c4c29ec1c17 57-59
+tests/sync_data_test.py
+  s_66212c309e21f0::t_a3acbfb47f9865 1,161-231
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "d97f3803d15bb17377b1357bac7ad974dcdd855b",
+  "prompts": {},
+  "sessions": {
+    "s_66212c309e21f0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8763d161-5362-48a1-ae9b-11f7bcd83469",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Xianpeng Shen <xianpeng.shen@gmail.com>"
+    }
+  }
+}
