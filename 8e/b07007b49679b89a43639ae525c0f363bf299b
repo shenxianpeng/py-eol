@@ -1,0 +1,29 @@
+.github/dependabot.yml
+  s_66212c309e21f0::t_f33dc92bd54f05 12-13,22-23
+.github/workflows/cd.yml
+  s_66212c309e21f0::t_24579f29323f30 23,34-35
+.github/workflows/ci.yml
+  s_66212c309e21f0::t_0f73b1f29f81e6 11-13,22-23
+.github/workflows/refresh-eol-data.yml
+  s_66212c309e21f0::t_27c55217de29a4 10-12,15-16
+.github/workflows/release-drafter.yml
+  s_66212c309e21f0::t_ae68a15d2ea546 12-14,17
+action.yml
+  s_66212c309e21f0::t_2ac2f080ba49e5 30-31,33,36,41-43,45-46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "8eb07007b49679b89a43639ae525c0f363bf299b",
+  "prompts": {},
+  "sessions": {
+    "s_66212c309e21f0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8763d161-5362-48a1-ae9b-11f7bcd83469",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Xianpeng Shen <xianpeng.shen@gmail.com>"
+    }
+  }
+}
