@@ -27,7 +27,7 @@ PYTHON_VERSIONS = {
     },
     "3.10": {
         "release_date": datetime.date(2021, 10, 4),
-        "eol_date": datetime.date(2026, 10, 31),
+        "eol_date": datetime.date(2026, 10, 1),
     },
     "3.9": {
         "release_date": datetime.date(2020, 10, 5),
