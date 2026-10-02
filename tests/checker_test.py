@@ -783,3 +783,76 @@ def test_check_dockerfile_warn_before(capsys, monkeypatch):
         assert "⏰ Python 3.99 will be EOL on" in captured.out
     finally:
         os.unlink(temp_file)
+
+
+def test_print_supported_warning_with_file(capsys):
+    _print_supported_warning("3.12", "test.py")
+    assert capsys.readouterr().out == (
+        "test.py: ✅ Python 3.12 is still supported until 2028-10-31\n"
+    )
+
+
+def test_print_supported_warning_with_file_and_line(capsys):
+    _print_supported_warning("3.12", "test.py", 7)
+    assert capsys.readouterr().out == (
+        "test.py:7: ✅ Python 3.12 is still supported until 2028-10-31\n"
+    )
+
+
+def test_check_github_actions_setup_python_supported(capsys, tmp_path):
+    workflow = tmp_path / "ci.yml"
+    workflow.write_text(
+        "jobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n"
+        "      - uses: actions/setup-python@v6\n        with:\n"
+        '          python-version: "3.14"\n',
+        encoding="utf-8",
+    )
+    assert _check_github_actions(str(workflow)) is False
+    assert f"{workflow}:7: ✅ Python 3.14 is still supported" in capsys.readouterr().out
+
+
+def test_check_github_actions_setup_python_without_version(capsys, tmp_path):
+    workflow = tmp_path / "ci.yml"
+    workflow.write_text(
+        "jobs:\n  test:\n    steps:\n      - uses: actions/setup-python@v6\n"
+        "        with:\n          python-version-file: .python-version\n",
+        encoding="utf-8",
+    )
+    assert _check_github_actions(str(workflow)) is False
+    assert capsys.readouterr().out == ""
+
+
+def test_check_github_actions_warn_before(capsys, monkeypatch, tmp_path):
+    import py_eol.checker as checker
+
+    future_date = datetime.date.today() + datetime.timedelta(days=60)
+    monkeypatch.setitem(checker.EOL_DATES, "3.99", future_date)
+    workflow = tmp_path / "ci.yml"
+    workflow.write_text(
+        'jobs:\n  test:\n    strategy:\n      matrix:\n        python-version: ["3.99"]\n',
+        encoding="utf-8",
+    )
+    assert _check_github_actions(str(workflow), warn_before_days=90) is True
+    assert "⏰ Python 3.99 will be EOL on" in capsys.readouterr().out
+
+
+def test_check_setup_py_warn_before(capsys, monkeypatch, tmp_path):
+    import py_eol.checker as checker
+
+    future_date = datetime.date.today() + datetime.timedelta(days=60)
+    monkeypatch.setitem(checker.EOL_DATES, "3.99", future_date)
+    setup_py = tmp_path / "setup.py"
+    setup_py.write_text('setup(python_requires=">=3.99")\n', encoding="utf-8")
+    assert _check_setup_py(str(setup_py), warn_before_days=90) is True
+    assert "⏰ Python 3.99 will be EOL on" in capsys.readouterr().out
+
+
+def test_check_tox_ini_warn_before(capsys, monkeypatch, tmp_path):
+    import py_eol.checker as checker
+
+    future_date = datetime.date.today() + datetime.timedelta(days=60)
+    monkeypatch.setitem(checker.EOL_DATES, "3.99", future_date)
+    tox_ini = tmp_path / "tox.ini"
+    tox_ini.write_text("[tox]\nenvlist = py399\n", encoding="utf-8")
+    assert _check_tox_ini(str(tox_ini), warn_before_days=90) is True
+    assert f"{tox_ini}:2: ⏰ Python 3.99 will be EOL on" in capsys.readouterr().out

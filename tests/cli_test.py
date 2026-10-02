@@ -480,3 +480,66 @@ def test_list_supported_versions_json_rich(monkeypatch, capsys):
     assert "release_date" in data[0]
     assert "eol_date" in data[0]
     assert "is_eol" in data[0]
+
+
+def _write_files(root, files):
+    paths = {}
+    for name, content in files.items():
+        path = root / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+        paths[name] = str(path)
+    return paths
+
+
+def test_main_files_end_to_end_supported(monkeypatch, capsys, tmp_path):
+    paths = _write_files(
+        tmp_path,
+        {
+            "pyproject.toml": '[project]\nrequires-python = ">=3.14"\n',
+            "setup.py": 'setup(python_requires=">=3.14")\n',
+            ".python-version": "3.14.2\n",
+            "tox.ini": "[tox]\nenvlist = py314\n",
+            "Dockerfile": "FROM python:3.14-slim\n",
+            ".github/workflows/ci.yml": (
+                'jobs:\n  test:\n    strategy:\n      matrix:\n        python-version: ["3.14"]\n'
+            ),
+            "README.md": "Python 3.7 is not checked here\n",
+        },
+    )
+    monkeypatch.setattr(sys, "argv", ["py-eol", "files", *paths.values()])
+
+    cli_mod.main()  # returns without exiting when nothing is EOL
+
+    out = capsys.readouterr().out.splitlines()
+    assert len(out) == 6
+    assert all("✅ Python 3.14 is still supported" in line for line in out)
+    assert not any(paths["README.md"] in line for line in out)
+
+
+def test_main_files_end_to_end_eol(monkeypatch, capsys, tmp_path):
+    paths = _write_files(
+        tmp_path,
+        {
+            "pyproject.toml": '[project]\nname = "demo"\nrequires-python = ">=3.7"\n',
+            "Dockerfile": "FROM python:3.8-slim\n",
+            ".github/workflows/ci.yml": (
+                "on: push\njobs:\n  test:\n    strategy:\n      matrix:\n"
+                '        python-version: ["3.9", "3.14"]\n'
+            ),
+        },
+    )
+    monkeypatch.setattr(sys, "argv", ["py-eol", "files", *paths.values()])
+
+    with pytest.raises(SystemExit) as e:
+        cli_mod.main()
+
+    assert e.value.code == 1
+    out = capsys.readouterr().out.splitlines()
+    workflow = paths[".github/workflows/ci.yml"]
+    assert out[:3] == [
+        f"{paths['pyproject.toml']}:3: ⚠️ Python 3.7 is already EOL since 2023-06-27",
+        f"{paths['Dockerfile']}:1: ⚠️ Python 3.8 is already EOL since 2024-10-07",
+        f"{workflow}:6: ⚠️ Python 3.9 is already EOL since 2025-10-31",
+    ]
+    assert out[3].startswith(f"{workflow}:6: ✅ Python 3.14 is still supported")

@@ -33,14 +33,19 @@ def test_sync_data_file_write_failure(monkeypatch):
         lambda: {"3.99": {"end_of_life": "2099-01-01", "status": "end-of-life"}},
     )
     monkeypatch.setattr(
-        sync_data_mod, "generate_eol_data_content", lambda data: "test content"
+        sync_data_mod,
+        "generate_eol_data_content",
+        lambda data, existing_release_dates=None: "test content",
     )
+    saved = []
 
     def fail_save(content):
+        saved.append(content)
         raise Exception("Write error")
 
     monkeypatch.setattr(sync_data_mod, "save_eol_data", fail_save)
     assert sync_data_mod.sync_data() is False
+    assert saved == ["test content"]
 
 
 def test_fetch_py_eol_data_success(monkeypatch):
@@ -157,3 +162,35 @@ def test_generate_eol_data_content_generates_eol_dates_alias():
     content = sync_data_mod.generate_eol_data_content(data)
     assert "EOL_DATES" in content
     assert "PYTHON_VERSIONS" in content
+
+
+def test_load_existing_release_dates_reads_bundled_data():
+    import datetime
+    from py_eol._eol_data import PYTHON_VERSIONS
+
+    release_dates = sync_data_mod._load_existing_release_dates()
+    assert release_dates["3.12"] == datetime.date(2023, 10, 2)
+    assert set(release_dates) == set(PYTHON_VERSIONS)
+
+
+def test_load_existing_release_dates_without_data_module(monkeypatch):
+    import sys
+
+    monkeypatch.setitem(sys.modules, "py_eol._eol_data", None)
+    assert sync_data_mod._load_existing_release_dates() == {}
+
+
+def test_generate_eol_data_content_invalid_release_date_uses_existing():
+    import datetime
+
+    existing = {"3.99": datetime.date(2023, 6, 15)}
+    data = {"3.99": {"release": "soon", "end_of_life": "2099-01-01"}}
+    content = sync_data_mod.generate_eol_data_content(data, existing)
+    assert '"release_date": datetime.date(2023, 6, 15),' in content
+
+
+def test_generate_eol_data_content_invalid_release_date_without_fallback():
+    data = {"3.99": {"release": "soon", "end_of_life": "2099-01-01"}}
+    content = sync_data_mod.generate_eol_data_content(data)
+    assert "release_date" not in content
+    assert '"eol_date": datetime.date(2099, 1, 1),' in content
