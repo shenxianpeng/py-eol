@@ -40,3 +40,8 @@ version_scheme= "no-guess-dev"
 # Test PyPI does not support local versions.
 local_scheme = "no-local-version"
 fallback_version = "0.0.0"
+
+[tool.ruff.lint]
+# ruff 0.16 widened its default rule set from E/F to several hundred rules.
+# Keep the previous behaviour explicit; opt into more families deliberately.
+select = ["E4", "E7", "E9", "F"]

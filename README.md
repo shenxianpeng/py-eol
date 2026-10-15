@@ -46,24 +46,31 @@ pip install py-eol
 
 ```python
 from py_eol import (
-    is_eol, get_eol_date, days_until_eol, is_eol_soon,
-    supported_versions, eol_versions, latest_supported_version,
+    is_eol,
+    get_eol_date,
+    days_until_eol,
+    is_eol_soon,
+    supported_versions,
+    eol_versions,
+    latest_supported_version,
     # New lifecycle API
-    get_release_date, get_version_info, all_versions,
+    get_release_date,
+    get_version_info,
+    all_versions,
 )
 
-print(is_eol("3.7"))                    # True
-print(is_eol("3.12"))                   # False
-print(get_eol_date("3.8"))              # 2024-10-07
-print(days_until_eol("3.12"))           # e.g. 960 (days remaining)
-print(is_eol_soon("3.10", 365))         # True if EOL within 365 days
-print(supported_versions())             # ['3.16', '3.15', '3.14', '3.13', '3.12', '3.11', '3.10']
-print(eol_versions())                   # ['3.9', '3.8', '3.7', ...]
-print(latest_supported_version())       # 3.16
+print(is_eol("3.7"))  # True
+print(is_eol("3.12"))  # False
+print(get_eol_date("3.8"))  # 2024-10-07
+print(days_until_eol("3.12"))  # e.g. 960 (days remaining)
+print(is_eol_soon("3.10", 365))  # True if EOL within 365 days
+print(supported_versions())  # ['3.16', '3.15', '3.14', '3.13', '3.12', '3.11', '3.10']
+print(eol_versions())  # ['3.9', '3.8', '3.7', ...]
+print(latest_supported_version())  # 3.16
 
 # Full lifecycle info (like endoflife.date)
-print(get_release_date("3.12"))         # 2023-10-02
-print(all_versions())                   # all known versions, newest first
+print(get_release_date("3.12"))  # 2023-10-02
+print(all_versions())  # all known versions, newest first
 
 info = get_version_info("3.12")
 # {
