@@ -27,18 +27,23 @@ runs:
   steps:
     - name: Install py-eol
       shell: bash
+      env:
+        INPUT_VERSION: ${{ inputs.version }}
       run: |
-        if [ "${{ inputs.version }}" = "latest" ]; then
+        if [ "$INPUT_VERSION" = "latest" ]; then
           pip install py-eol --quiet
         else
-          pip install "py-eol==${{ inputs.version }}" --quiet
+          pip install "py-eol==$INPUT_VERSION" --quiet
         fi
 
     - name: Check Python EOL
       shell: bash
+      env:
+        INPUT_FILES: ${{ inputs.files }}
+        INPUT_WARN_BEFORE: ${{ inputs.warn-before }}
       run: |
-        FILES="${{ inputs.files }}"
-        WARN_BEFORE="${{ inputs.warn-before }}"
+        FILES="$INPUT_FILES"
+        WARN_BEFORE="$INPUT_WARN_BEFORE"
 
         if [ -z "$FILES" ]; then
           DETECTED_FILES=""
