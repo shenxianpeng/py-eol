@@ -1,0 +1,25 @@
+.github/workflows/ci.yml
+  s_808bcb54b94641::t_32d35b30971ea5 11-13
+.github/workflows/refresh-eol-data.yml
+  s_808bcb54b94641::t_fe28f1942446ed 7-9,13-15
+.github/workflows/release-drafter.yml
+  s_808bcb54b94641::t_55db1a80f9e5b2 9-11,15-17
+action.yml
+  s_808bcb54b94641::t_22fc583eabe6b9 30-31,33,36,41-43,45-46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8a076c14677301166617e668605fabae08aeb6f1",
+  "prompts": {},
+  "sessions": {
+    "s_808bcb54b94641": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8f452822-7f74-42c5-8597-23c2eec5567e",
+        "model": "claude-fable-5-1"
+      },
+      "human_author": "Xianpeng Shen <xianpeng.shen@gmail.com>"
+    }
+  }
+}
