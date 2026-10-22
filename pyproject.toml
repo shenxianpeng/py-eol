@@ -35,6 +35,16 @@ testpaths = [
     "tests"
 ]
 
+[tool.coverage.run]
+source = ["py_eol"]
+branch = true
+
+[tool.coverage.report]
+# The whole package is covered; keep it that way: `coverage report` (run by
+# the nox coverage session in CI) fails below 100% lines and branches.
+fail_under = 100
+show_missing = true
+
 [tool.setuptools_scm]
 version_scheme= "no-guess-dev"
 # Test PyPI does not support local versions.
